@@ -1,5 +1,5 @@
 # PRD — Fase 1 (MVP) — Body Healthy
-**Metodologia:** BMAD (fase PM) · **Status:** Rascunho v2 · **Data:** 25/08/2026
+**Metodologia:** BMAD (fase PM) · **Status:** Rascunho v3 · **Data:** 25/08/2026
 **Baseado em:** Project Brief v2
 
 ---
@@ -32,7 +32,7 @@ Adulto 28-50 anos, classe A/B, engajado com saúde/fitness, em acompanhamento m�
 - **RF10** — Usuário declara objetivo para o ciclo atual (texto livre + categorias sugeridas: ganho de massa magra, perda de gordura, manutenção, outro)
 - **RF11** — Sistema gera plano de ação em linguagem simples (nutrição, treino, sono) a partir do objetivo + dados disponíveis (exames, bioimpedância). Deve funcionar de forma graciosamente degradada: com objetivo apenas, gera plano genérico de qualidade; com mais dados, refina e personaliza
 - **RF12** — Sistema gera treino personalizado estruturado (divisão, exercícios, séries/repetições, progressão)
-- **RF13** — Usuário pode exportar o treino gerado em formato compatível para importação manual no Hevy (não é integração via API na Fase 1, é exportação estruturada)
+- **RF13** — Usuário visualiza o treino completo em tela e pode exportá-lo em formato estruturado genérico (não vinculado a nenhum app específico), para uso manual em qualquer aplicativo de treino de sua escolha (ex.: Hevy, Strong, ou outro) — não é integração via API na Fase 1, é exportação estruturada
 
 ### 3.4 Engajamento entre ciclos (fechamento do loop)
 - **RF16** — Sistema oferece check-in semanal leve (peso, adesão ao treino da semana — completo/parcial/não realizado —, energia/sono em escala simples), levando menos de 1 minuto
@@ -61,7 +61,7 @@ Adulto 28-50 anos, classe A/B, engajado com saúde/fitness, em acompanhamento m�
 5. Usuário registra/atualiza linha do tempo de prescrições
 6. Usuário declara objetivo do ciclo
 7. Sistema gera plano de ação + treino personalizado
-8. Usuário revisa, ajusta se necessário, exporta treino para o Hevy
+8. Usuário revisa, ajusta se necessário, exporta o treino em formato genérico para uso no app de treino de sua escolha
 9. **Entre ciclos:** usuário faz check-in semanal (adesão, peso, energia/sono) e opcionalmente registra progressão detalhada do treino executado
 10. Dashboard consolida tudo, mostrando progressão semanal e contagem regressiva até o próximo ciclo de exames
 11. No próximo acompanhamento médico (ex.: 3 meses depois), o ciclo se repete com histórico mais rico
