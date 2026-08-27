@@ -1,5 +1,5 @@
 # Project Brief — Body Healthy
-**Metodologia:** BMAD (fase Analyst) · **Status:** Rascunho v2 · **Data:** 24/08/2026
+**Metodologia:** BMAD (fase Analyst) · **Status:** Rascunho v3 · **Data:** 24/08/2026
 
 ---
 
@@ -74,9 +74,15 @@ Só depois do núcleo validado, porque são categorias já disputadas por apps g
 - **Aquisição:** CAC em saúde/wellness tende a ser alto; canal mais barato provável é conteúdo educacional (like Levels fez) + parceria com labs.
 - **Escopo:** risco de a Fase 2 (foto de refeição/caloria) competir diretamente com apps consolidados (MyFitnessPal, Cronometer) sem diferencial claro — reavaliar antes de construir, não só documentar.
 
-## 10. Modelo de negócio (hipótese inicial)
+## 10. Modelo de negócio (decisão de lançamento)
 
-Assinatura mensal/anual em torno do que o brasileiro já paga por apps de wellness (referência: ticket bem abaixo dos US$199/ano do Levels, em R$, dado o poder de compra local) + camada gratuita limitada para aquisição.
+Estratégia de lançamento definida: **gratuito com limite de uso, não gratuito ilimitado.** Usuário tem acesso livre a 1 ciclo completo (upload de exame → plano → treino) por trimestre — que é o próprio ritmo natural de uso do produto, alinhado ao acompanhamento médico real — mais dashboard, check-in semanal e histórico sem limite algum. A cobrança entra depois, quando o produto tiver tração validada e mais funcionalidades (Fase 2).
+
+**Por que não gratuito ilimitado:** diferente da maioria dos SaaS, este produto tem custo variável real por uso — cada exame, laudo e geração de plano/treino é uma chamada paga de IA (risco já registrado no Architecture Doc). Gratuito sem limite escalaria custo de infraestrutura junto com a base de usuários, sem receita compensando. O teto de 1 ciclo/trimestre resolve isso sem parecer uma restrição artificial, porque é literalmente a cadência de uso que o produto já foi desenhado para servir.
+
+**Sobre cobrança futura:** quando ativada, a assinatura será via billing nativo das lojas (Apple StoreKit / Google Play Billing), não gateway de pagamento tradicional — exigência padrão de ambas as plataformas para conteúdo digital consumido no app, sem exceção clara identificada para o Brasil (decisão registrada no Architecture Doc, seção 6).
+
+Referência de ticket: bem abaixo dos US$199/ano do Levels, em R$, dado o poder de compra local — valor exato a validar quando chegar a hora de precificar.
 
 ## 11. Métricas de sucesso do MVP
 

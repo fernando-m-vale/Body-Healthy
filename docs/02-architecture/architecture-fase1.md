@@ -1,5 +1,5 @@
 # Architecture Doc — Fase 1 (MVP) — Body Healthy
-**Metodologia:** BMAD (fase Architect) · **Status:** Rascunho v4 (decisões fechadas) · **Data:** 25/08/2026
+**Metodologia:** BMAD (fase Architect) · **Status:** Rascunho v5 (decisões fechadas) · **Data:** 25/08/2026
 **Baseado em:** PRD Fase 1 v2
 
 ---
@@ -56,7 +56,7 @@ Além disso, o **AWS App Runner não é mais opção para projeto novo**: a AWS 
 ## 6. Fora de escopo desta versão do documento
 
 - Escala/performance além do necessário para validar o MVP com uma base pequena de usuários
-- Arquitetura de billing/assinatura (entra quando o modelo de monetização for validado)
+- Arquitetura de billing/assinatura completa (entra quando o modelo de monetização for validado). **Decisão já fechada, registrada aqui para não se perder:** quando chegar a hora, a cobrança deve usar o billing nativo de cada plataforma (StoreKit na Apple, Play Billing Library no Google) em vez de gateway de pagamento tradicional (ex.: Stripe) — é a exigência padrão de ambas as lojas para assinatura de conteúdo/funcionalidade digital consumida no app, e não foi encontrada exceção clara para o Brasil (as exceções recentes cobrem especificamente EUA e União Europeia). A modelagem de dado de assinatura em si (planos, ciclo de cobrança) ainda fica para quando o billing for de fato construído.
 
 ## 7. Riscos técnicos
 
