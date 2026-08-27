@@ -1,5 +1,5 @@
 # PRD — Fase 1 (MVP) — Body Healthy
-**Metodologia:** BMAD (fase PM) · **Status:** Rascunho v3 · **Data:** 25/08/2026
+**Metodologia:** BMAD (fase PM) · **Status:** Rascunho v4 · **Data:** 25/08/2026
 **Baseado em:** Project Brief v2
 
 ---
@@ -14,33 +14,38 @@ Adulto 28-50 anos, classe A/B, engajado com saúde/fitness, em acompanhamento m�
 
 ## 3. Requisitos funcionais
 
-### 3.1 Ingestão de dados
+### 3.1 Perfil do usuário (onboarding)
+- **RF20** — Usuário informa, no onboarding, dados básicos de perfil: altura, data de nascimento, sexo biológico (usado exclusivamente para estimativa calórica, não é campo de identidade de gênero) e nível de atividade física. Assim como os dados de saúde, nenhum desses campos é obrigatório — sem eles, o sistema simplesmente não calcula meta calórica (RF21), mas o restante do produto funciona normalmente
+
+### 3.2 Ingestão de dados
 - **RF01** — Usuário faz upload de PDF ou foto de exame laboratorial (labs brasileiros: Fleury, Dasa, Hermes Pardini e formatos genéricos)
 - **RF02** — Usuário faz upload de laudo de imagem (ex.: ultrassom de abdômen) em PDF/foto
 - **RF03** — Usuário registra manualmente (ou importa, se houver fonte) dados de bioimpedância: peso, % gordura, massa magra, e demais métricas do aparelho usado
 - **RF04** — Usuário registra linha do tempo de prescrições (nome do item, categoria — medicação/hormônio/suplemento —, data de início, e opcionalmente data de término)
 - **RF04a — Nenhum campo de ingestão é obrigatório.** Todos os dados acima (exame, laudo de imagem, bioimpedância, prescrições) são opcionais. O usuário deve conseguir chegar a um plano de ação e treino mesmo sem fornecer nenhum deles — a qualidade e especificidade da recomendação escala com a quantidade de dado disponível, mas a ausência de dado nunca bloqueia o fluxo. O sistema deve comunicar claramente ao usuário, de forma não alarmista, que mais dado gera recomendação mais precisa.
 
-### 3.2 Extração e interpretação
+### 3.3 Extração e interpretação
 - **RF05** — Sistema extrai automaticamente via IA os marcadores do exame laboratorial (nome, valor, unidade, faixa de referência do próprio laudo)
 - **RF06** — Sistema extrai e resume via IA os achados relevantes do laudo de imagem em linguagem simples
 - **RF07** — Sistema compara cada marcador novo com o histórico do mesmo usuário (quando existir exame anterior) e sinaliza tendência (subindo/descendo/estável)
 - **RF08** — Sistema apresenta bioimpedância como série temporal (gráfico de evolução)
 - **RF09** — Sistema correlaciona, na mesma linha do tempo visual, exames + bioimpedância + início/fim de prescrições — **apenas como contexto de correlação, nunca como sugestão de causa/efeito clínica**
 
-### 3.3 Plano de ação e treino
+### 3.4 Plano de ação e treino
 - **RF10** — Usuário declara objetivo para o ciclo atual (texto livre + categorias sugeridas: ganho de massa magra, perda de gordura, manutenção, outro)
 - **RF11** — Sistema gera plano de ação em linguagem simples (nutrição, treino, sono) a partir do objetivo + dados disponíveis (exames, bioimpedância). Deve funcionar de forma graciosamente degradada: com objetivo apenas, gera plano genérico de qualidade; com mais dados, refina e personaliza
 - **RF12** — Sistema gera treino personalizado estruturado (divisão, exercícios, séries/repetições, progressão)
 - **RF13** — Usuário visualiza o treino completo em tela e pode exportá-lo em formato estruturado genérico (não vinculado a nenhum app específico), para uso manual em qualquer aplicativo de treino de sua escolha (ex.: Hevy, Strong, ou outro) — não é integração via API na Fase 1, é exportação estruturada
+- **RF21** — Sistema calcula uma meta calórica diária estimada (via fórmula padrão de gasto energético + fator de atividade, ajustada ao objetivo do ciclo — déficit, superávit ou manutenção), quando o perfil (RF20) e ao menos um peso recente (bioimpedância) estiverem disponíveis. Sem esses dados, a meta simplesmente não é calculada — não bloqueia o restante do plano
 
-### 3.4 Engajamento entre ciclos (fechamento do loop)
+### 3.5 Engajamento entre ciclos (fechamento do loop)
 - **RF16** — Sistema oferece check-in semanal leve (peso, adesão ao treino da semana — completo/parcial/não realizado —, energia/sono em escala simples), levando menos de 1 minuto
-- **RF17** — Usuário pode registrar manualmente o resultado do treino executado fora do produto (ex.: no Hevy): carga, séries/repetições realizadas por exercício, ou apenas nível de adesão simplificado, à sua escolha de detalhamento
+- **RF17** — Usuário pode registrar manualmente o resultado do treino executado fora do produto (ex.: no app de treino de sua escolha): carga, séries/repetições realizadas por exercício, ou apenas nível de adesão simplificado, à sua escolha de detalhamento
 - **RF18** — Sistema usa os dados de adesão e progressão (RF16/RF17) para ajustar o próximo plano gerado — ex.: se adesão foi baixa, o próximo plano considera isso
 - **RF19** — Dashboard mostra progressão do treino e adesão semana a semana, além da contagem regressiva até o próximo ciclo de exames
+- **RF22** — Usuário pode registrar manualmente, dia a dia, o total de calorias consumidas (número + observação livre opcional, sem foto/reconhecimento de refeição — isso fica para Fase 2), comparado à meta calórica do ciclo (RF21) quando ela existir
 
-### 3.5 Dashboard
+### 3.6 Dashboard
 - **RF14** — Dashboard único mostra evolução do usuário ao longo do tempo: exames, bioimpedância, prescrições e treinos gerados, todos na mesma linha do tempo
 - **RF15** — Usuário pode ver o histórico completo de um marcador específico isoladamente (ex.: evolução da glicose em jejum nos últimos 2 anos)
 
@@ -68,7 +73,7 @@ Adulto 28-50 anos, classe A/B, engajado com saúde/fitness, em acompanhamento m�
 
 ## 6. Fora de escopo (Fase 1)
 
-- Foto de refeição / contagem de calorias (Fase 2)
+- Foto de refeição / reconhecimento automático de alimento (Fase 2) — o registro manual de total de calorias diárias (RF22) entra na Fase 1, mas a estimativa via foto continua fora de escopo
 - Foto corporal para comparação visual (Fase 2)
 - Integração via API direta com Hevy ou outros apps de treino, tanto para exportar quanto para importar resultado automaticamente — na Fase 1 tudo é manual (exportar treino, registrar progressão/adesão). Extração automática via API é candidata a reavaliação futura, condicionada à disponibilidade de API do app usado
 - Qualquer sugestão de dosagem, ajuste ou início/fim de medicação — decisão exclusivamente médica
