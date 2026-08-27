@@ -12,11 +12,17 @@ node_modules/
 dist/
 build/
 out/
+*.tsbuildinfo
+
+# Prisma generated client
+src/generated/prisma/
 
 # Expo / React Native
 .expo/
 .expo-shared/
 web-build/
+ios/
+android/
 *.jks
 *.p8
 *.p12
