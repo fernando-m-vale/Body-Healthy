@@ -1,5 +1,5 @@
 # PRD — Fase 1 (MVP) — Body Healthy
-**Metodologia:** BMAD (fase PM) · **Status:** Rascunho v4 · **Data:** 25/08/2026
+**Metodologia:** BMAD (fase PM) · **Status:** Rascunho v5 · **Data:** 25/08/2026
 **Baseado em:** Project Brief v2
 
 ---
@@ -14,7 +14,9 @@ Adulto 28-50 anos, classe A/B, engajado com saúde/fitness, em acompanhamento m�
 
 ## 3. Requisitos funcionais
 
-### 3.1 Perfil do usuário (onboarding)
+### 3.1 Cadastro, consentimento e perfil (onboarding)
+- **RF23** — Usuário cria conta via e-mail/senha ou autenticação social (Google)
+- **RF24** — Sistema captura consentimento explícito e granular para tratamento de dado de saúde (categoria sensível, LGPD) no momento da criação da conta, antes de qualquer coleta de dado de saúde — não é aceite genérico de termos, é consentimento específico para essa categoria de dado
 - **RF20** — Usuário informa, no onboarding, dados básicos de perfil: altura, data de nascimento, sexo biológico (usado exclusivamente para estimativa calórica, não é campo de identidade de gênero) e nível de atividade física. Assim como os dados de saúde, nenhum desses campos é obrigatório — sem eles, o sistema simplesmente não calcula meta calórica (RF21), mas o restante do produto funciona normalmente
 
 ### 3.2 Ingestão de dados

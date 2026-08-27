@@ -1,5 +1,5 @@
 # Architecture Doc — Fase 1 (MVP) — Body Healthy
-**Metodologia:** BMAD (fase Architect) · **Status:** Rascunho v3 (decisões fechadas) · **Data:** 25/08/2026
+**Metodologia:** BMAD (fase Architect) · **Status:** Rascunho v4 (decisões fechadas) · **Data:** 25/08/2026
 **Baseado em:** PRD Fase 1 v2
 
 ---
@@ -25,7 +25,7 @@ Além disso, o **AWS App Runner não é mais opção para projeto novo**: a AWS 
 | Hosting do backend | Amazon ECS Express Mode | Substituto oficial do App Runner recomendado pela própria AWS; mesma simplicidade operacional |
 | Armazenamento de arquivo (PDFs/fotos de exame) | S3 com bucket privado, URLs assinadas de curta duração | Nunca expor arquivo de exame publicamente, nem por URL previsível |
 | Extração de dado do exame (IA) | API da Anthropic (Claude), com suporte nativo a PDF/imagem | Evita treinar/manter modelo próprio; qualidade de extração de texto médico é alta; mesmo ecossistema que você já usa no fluxo manual atual |
-| Autenticação | A decidir — ver seção 5 | Depende do nível de garantia exigido para dado sensível |
+| Autenticação | E-mail/senha + Google OAuth (ver seção 5) | Decidido — cobre a maioria dos usuários brasileiros sem exigir múltiplos provedores desde o MVP |
 
 **Nota:** publicar em loja (App Store + Google Play) adiciona um processo de revisão e prazos que não existiam no SuperSeller (produto web). Vale considerar isso no cronograma quando formos planejar o lançamento, não é uma decisão de arquitetura, mas afeta o plano.
 
@@ -49,14 +49,13 @@ Além disso, o **AWS App Runner não é mais opção para projeto novo**: a AWS 
 
 ## 5. Autenticação e controle de acesso
 
-- Autenticação de usuário: e-mail/senha + opção social login (a definir provedor)
+- **Decidido:** autenticação de usuário via e-mail/senha ou Google OAuth (login social). Google cobre a maior parte da base de usuários esperada sem exigir suporte a múltiplos provedores desde o MVP; outros provedores (Apple, Facebook) ficam como candidatos futuros se a demanda justificar
 - Nenhum dado de saúde acessível sem sessão autenticada válida — sem exceção, inclusive em ambiente de desenvolvimento/staging
 - **Decidido:** 2FA disponível e incentivado desde o MVP, mas não obrigatório — evita fricção na ativação numa fase em que validar retorno do usuário é prioridade. Compensado com verificação de e-mail obrigatória, alerta de login em novo dispositivo e rate limiting contra força bruta. Reavaliar tornar 2FA obrigatório quando a base de usuários estiver estabelecida.
 
 ## 6. Fora de escopo desta versão do documento
 
 - Escala/performance além do necessário para validar o MVP com uma base pequena de usuários
-- Decisão final de provedor de autenticação (a resolver na primeira sessão de implementação)
 - Arquitetura de billing/assinatura (entra quando o modelo de monetização for validado)
 
 ## 7. Riscos técnicos
