@@ -8,6 +8,7 @@ import authRoutes from "./modules/auth/auth.routes";
 import consentRoutes from "./modules/consent/consent.routes";
 import profileRoutes from "./modules/profile/profile.routes";
 import examsRoutes from "./modules/exams/exams.routes";
+import imagingReportsRoutes from "./modules/imaging-reports/imaging-reports.routes";
 
 const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
 
@@ -27,6 +28,7 @@ async function main() {
   await app.register(consentRoutes);
   await app.register(profileRoutes);
   await app.register(examsRoutes);
+  await app.register(imagingReportsRoutes);
 
   const port = Number(process.env.PORT ?? 3000);
 

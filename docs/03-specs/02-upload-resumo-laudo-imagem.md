@@ -1,5 +1,5 @@
 # Spec Técnica 02 — Upload e Resumo de Laudo de Imagem
-**Metodologia:** SDD · **Status:** Rascunho v3 · **Data:** 27/08/2026
+**Metodologia:** SDD · **Status:** Rascunho v4 · **Data:** 27/08/2026
 **Cobre:** RF02, RF06 (PRD Fase 1) · **Depende de:** Architecture Doc v3, Spec 01 (padrão de upload reaproveitado)
 
 ---
@@ -38,6 +38,7 @@ model ImagingReport {
   aiSummary     String?  // resumo em linguagem simples gerado pela IA
   rawFindings   Json?    // achados brutos extraídos, para auditoria/debug
   userFlagged   Boolean  @default(false) // true se usuário sinalizar que o resumo não reflete o laudo
+  flagComment   String?  // comentário livre opcional do usuário ao sinalizar
   reviewedAt    DateTime?
   createdAt     DateTime @default(now())
 

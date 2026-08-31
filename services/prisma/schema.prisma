@@ -88,3 +88,24 @@ model LabMarker {
 
   @@index([labExamId])
 }
+
+// Spec 02 — Upload e Resumo de Laudo de Imagem
+// docs/03-specs/02-upload-resumo-laudo-imagem.md, seção 4
+
+model ImagingReport {
+  id          String    @id @default(cuid())
+  userId      String
+  fileUrl     String // referência ao objeto no S3 privado
+  fileType    String // "pdf" | "image"
+  reportType  String? // ex.: "ultrassom_abdome" — livre, sem enum fechado no MVP
+  examDate    DateTime? // data do laudo (extraída ou informada pelo usuário)
+  status      String // "uploaded" | "processing" | "pending_review" | "reviewed" | "failed" | "discarded"
+  aiSummary   String? // resumo em linguagem simples gerado pela IA
+  rawFindings Json? // achados brutos extraídos, para auditoria/debug
+  userFlagged Boolean   @default(false) // true se usuário sinalizar que o resumo não reflete o laudo
+  flagComment String? // comentário livre opcional do usuário ao sinalizar
+  reviewedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, examDate])
+}
