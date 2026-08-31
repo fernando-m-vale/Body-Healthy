@@ -130,3 +130,32 @@ model BioimpedanceEntry {
 
   @@index([userId, measuredAt])
 }
+
+// Spec 04 — Linha do Tempo de Prescrições
+// docs/03-specs/04-linha-tempo-prescricoes.md, seção 4
+
+model PrescriptionEntry {
+  id             String    @id @default(cuid())
+  userId         String
+  nameEncrypted  Bytes // nome do item, cifrado em nível de aplicação antes de persistir
+  category       String // "medicacao" | "hormonio" | "suplemento" — não cifrado,
+  // é uma categoria genérica, não identifica o item específico
+  startDate      DateTime
+  endDate        DateTime?
+  notesEncrypted Bytes? // campo livre opcional, também cifrado
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId, startDate])
+}
+
+model HealthDataAccessLog {
+  id         String   @id @default(cuid())
+  userId     String // dono do dado
+  accessedBy String // quem acessou (normalmente o próprio userId, mas registrado
+  // explicitamente para cobrir qualquer acesso administrativo futuro)
+  resource   String // ex.: "PrescriptionEntry:list", "PrescriptionEntry:{id}"
+  accessedAt DateTime @default(now())
+
+  @@index([userId, accessedAt])
+}
