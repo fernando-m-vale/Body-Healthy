@@ -109,3 +109,24 @@ model ImagingReport {
 
   @@index([userId, examDate])
 }
+
+// Spec 03 — Registro de Bioimpedância (Série Temporal)
+// docs/03-specs/03-bioimpedancia.md, seção 4
+
+model BioimpedanceEntry {
+  id             String   @id @default(cuid())
+  userId         String
+  measuredAt     DateTime // data da medição, informada pelo usuário
+  weightKg       Float?
+  bodyFatPercent Float?
+  leanMassKg     Float?
+  extraMetrics   Json? // demais métricas do aparelho usado (ex.: gordura visceral,
+  // água corporal, taxa metabólica basal) — schema livre,
+  // já que varia por fabricante de aparelho
+  deviceName String? // ex.: "InBody 270" — informativo, sem validação de formato
+  notes      String? // campo livre opcional
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, measuredAt])
+}
