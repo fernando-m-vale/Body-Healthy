@@ -1,5 +1,5 @@
 # Spec Técnica 01 — Ingestão e Extração de Exame Laboratorial via IA
-**Metodologia:** SDD · **Status:** Rascunho v2 · **Data:** 27/08/2026
+**Metodologia:** SDD · **Status:** Rascunho v3 · **Data:** 27/08/2026
 **Cobre:** RF01, RF04a, RF05, RF07, RNF03 (PRD Fase 1) · **Depende de:** Architecture Doc v3
 
 ---
@@ -75,7 +75,7 @@ Antes ou durante o upload, a tela deve comunicar de forma breve e não alarmista
 4. **Resultado** — job grava os `LabMarker` extraídos com `userCorrected: false`, atualiza `LabExam.status: "pending_confirmation"`, dispara notificação ao usuário (RNF04 — processamento assíncrono)
 5. **Confirmação humana (RNF03 — obrigatória)** — usuário abre a tela de revisão, vê cada marcador extraído, pode editar valor/unidade/faixa antes de confirmar. Nenhum marcador é usado em plano de ação, dashboard ou correlação enquanto `LabExam.status != "confirmed"`
 6. **Confirmação** — ao confirmar, `LabExam.status: "confirmed"`, `confirmedAt` preenchido, qualquer marcador editado marcado com `userCorrected: true`
-7. **Cálculo de tendência (RF07)** — após confirmação, sistema busca o `LabMarker` de mesmo `name` no `LabExam` confirmado anterior do mesmo usuário (se existir) e calcula `trend` (up/down/stable, com margem de tolerância a definir — sugestão inicial: variação <5% = stable)
+7. **Cálculo de tendência (RF07)** — após confirmação, sistema busca o `LabMarker` de mesmo `name` **e mesma `unit`** no `LabExam` confirmado anterior do mesmo usuário (se existir) e calcula `trend` (up/down/stable, com margem de tolerância a definir — sugestão inicial: variação <5% = stable). **Regra de segurança obrigatória:** se o marcador de mesmo nome existir no exame anterior mas com `unit` diferente (ex.: "pg/mL" vs. "ng/dL"), o sistema **não deve comparar os valores numéricos brutos** — trata como se não houvesse exame anterior comparável e retorna `trend: null`. Nunca inferir ou converter unidade automaticamente nesta spec (ver seção 8); comparar valores em unidades diferentes sem conversão pode produzir uma tendência **invertida e enganosa**, o que é pior do que não ter tendência nenhuma.
 
 ## 5. Contrato de API (alto nível)
 
@@ -92,6 +92,7 @@ Antes ou durante o upload, a tela deve comunicar de forma breve e não alarmista
 - **Extração falha ou retorna vazio** — `LabExam.status: "failed"`, usuário notificado, opção de tentar novamente ou inserir manualmente
 - **Arquivo ilegível/não é exame de sangue** — IA deve retornar sinalização explícita de "não identificado como exame laboratorial" em vez de inventar marcadores; `status: "failed"` com mensagem clara
 - **Usuário sem exame anterior** — `trend: null`, RF07 não bloqueia o fluxo (consistente com RF04a — dado ausente não trava o produto)
+- **Mesmo marcador (nome idêntico) com unidade diferente entre exames** (ex.: DHT em "pg/mL" num exame e "ng/dL" no outro, mesmo laboratório ou não) — `trend: null`, nunca comparação numérica direta. Risco real e confirmado: dois laboratórios podem usar o mesmo nome de marcador com unidades diferentes, e a diferença de escala pode inverter a leitura de tendência se comparada sem conversão
 - **Mesmo marcador com nomes diferentes entre labs** (ex.: "Glicose" vs. "Glicose em jejum") — fora de escopo desta spec definir normalização; anotar como risco técnico para spec de comparação histórica
 
 ## 7. Critérios de aceite
@@ -100,6 +101,7 @@ Antes ou durante o upload, a tela deve comunicar de forma breve e não alarmista
 - [ ] Nenhum marcador aparece em outra tela do produto antes de `status: "confirmed"`
 - [ ] Usuário consegue editar qualquer valor extraído antes de confirmar
 - [ ] Ao confirmar um segundo exame, marcadores em comum com o primeiro mostram tendência
+- [ ] Marcador de mesmo nome mas unidade diferente entre exames retorna `trend: null`, nunca uma comparação numérica direta entre unidades incompatíveis
 - [ ] Falha de extração não deixa o usuário travado — sempre há caminho de retry ou entrada manual
 - [ ] Tela de upload exibe o texto de "por que pedimos esse dado" e o reforço de que não há diagnóstico/análise médica, antes do usuário concluir o envio
 
@@ -107,6 +109,7 @@ Antes ou durante o upload, a tela deve comunicar de forma breve e não alarmista
 
 - Definição final do prompt de extração (fica como tarefa de implementação, validada com amostra real de exames conforme Architecture Doc seção 4)
 - Normalização de nomes de marcadores entre labs diferentes
+- **Conversão automática de unidade entre marcadores equivalentes** (ex.: converter "ng/dL" para "pg/mL" automaticamente para viabilizar comparação) — quando a unidade diverge, a regra desta spec é `trend: null` (seção 4, passo 7), nunca converter e comparar. Conversão automática é candidata a spec futura, mas exige tabela de equivalência validada por revisão de qualidade, não é decisão trivial de código
 - UI/UX detalhada da tela de confirmação (spec de produto/design separada, se necessário)
 
 ---

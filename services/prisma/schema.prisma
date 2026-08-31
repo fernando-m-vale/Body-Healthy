@@ -52,3 +52,39 @@ model UserProfile {
 
   user User @relation(fields: [userId], references: [id])
 }
+
+// Spec 01 — Ingestão e Extração de Exame Laboratorial via IA
+// docs/03-specs/01-ingestao-extracao-exame.md, seção 3
+
+model LabExam {
+  id          String    @id @default(cuid())
+  userId      String
+  fileUrl     String // referência ao objeto no S3, não o arquivo em si
+  fileType    String // "pdf" | "image"
+  labSource   String? // "fleury" | "dasa" | "hermes_pardini" | "generic" | null
+  status      String // "uploaded" | "processing" | "pending_confirmation" | "confirmed" | "failed"
+  examDate    DateTime? // data do exame (extraída ou informada pelo usuário)
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+
+  markers LabMarker[]
+
+  @@index([userId, examDate])
+}
+
+model LabMarker {
+  id            String  @id @default(cuid())
+  labExamId     String
+  name          String // nome do marcador (ex.: "Glicose em jejum")
+  value         Float
+  unit          String // ex.: "mg/dL"
+  referenceMin  Float?
+  referenceMax  Float?
+  rawExtracted  Json // payload bruto retornado pela IA, para auditoria/debug
+  userCorrected Boolean @default(false) // true se o usuário editou o valor extraído
+  trend         String? // "up" | "down" | "stable" | null (calculado, não vem da IA)
+
+  labExam LabExam @relation(fields: [labExamId], references: [id])
+
+  @@index([labExamId])
+}

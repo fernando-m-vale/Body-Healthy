@@ -3,9 +3,11 @@ import Fastify from "fastify";
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from "fastify-type-provider-zod";
 import prismaPlugin from "./plugins/prisma";
 import jwtPlugin from "./plugins/jwt";
+import s3Plugin from "./plugins/s3";
 import authRoutes from "./modules/auth/auth.routes";
 import consentRoutes from "./modules/consent/consent.routes";
 import profileRoutes from "./modules/profile/profile.routes";
+import examsRoutes from "./modules/exams/exams.routes";
 
 const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
 
@@ -19,10 +21,12 @@ app.get("/health", async () => {
 async function main() {
   await app.register(prismaPlugin);
   await app.register(jwtPlugin);
+  await app.register(s3Plugin);
 
   await app.register(authRoutes);
   await app.register(consentRoutes);
   await app.register(profileRoutes);
+  await app.register(examsRoutes);
 
   const port = Number(process.env.PORT ?? 3000);
 

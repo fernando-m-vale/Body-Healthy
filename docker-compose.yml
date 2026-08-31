@@ -12,5 +12,23 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  # Compatível com S3 (API idêntica) — substitui a conta AWS enquanto ela não é
+  # provisionada (Spec 01). Trocar por S3 real depois é só mudar as variáveis
+  # de ambiente S3_* no services/.env, sem mudar código.
+  minio:
+    image: minio/minio
+    container_name: body-healthy-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: bodyhealthy
+      MINIO_ROOT_PASSWORD: bodyhealthy-minio
+    ports:
+      - "9000:9000" # API S3
+      - "9001:9001" # console web
+    volumes:
+      - minio-data:/data
+
 volumes:
   postgres-data:
+  minio-data:
