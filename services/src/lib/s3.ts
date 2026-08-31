@@ -4,10 +4,12 @@ import {
   HeadBucketCommand,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const UPLOAD_URL_TTL_SECONDS = 5 * 60;
+const DOWNLOAD_URL_TTL_SECONDS = 5 * 60;
 
 export function createS3Client(): S3Client {
   return new S3Client({
@@ -37,6 +39,28 @@ export function createUploadUrl(
 ): Promise<string> {
   const command = new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType });
   return getSignedUrl(s3, command, { expiresIn: UPLOAD_URL_TTL_SECONDS });
+}
+
+// Escrita direta pelo backend (ex.: arquivo de exportação gerado pelo job,
+// Spec 08) — diferente de createUploadUrl(), que assina uma URL pro cliente
+// subir o arquivo diretamente (Specs 01/02).
+export async function putObject(
+  s3: S3Client,
+  bucket: string,
+  key: string,
+  bytes: Buffer,
+  contentType: string,
+): Promise<void> {
+  await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: bytes, ContentType: contentType }));
+}
+
+export function createDownloadUrl(s3: S3Client, bucket: string, key: string): Promise<string> {
+  const command = new GetObjectCommand({ Bucket: bucket, Key: key });
+  return getSignedUrl(s3, command, { expiresIn: DOWNLOAD_URL_TTL_SECONDS });
+}
+
+export async function deleteObject(s3: S3Client, bucket: string, key: string): Promise<void> {
+  await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
 }
 
 export interface S3Object {

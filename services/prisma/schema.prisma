@@ -271,3 +271,30 @@ model DailyCalorieLog {
   @@unique([userId, logDate])
   @@index([userId, logDate])
 }
+
+// Spec 08 — Portabilidade de Dado e Exclusão de Conta
+// docs/03-specs/08-portabilidade-exclusao.md, seção 4
+
+model DataExportRequest {
+  id          String    @id @default(cuid())
+  userId      String
+  status      String // "requested" | "processing" | "ready" | "expired" | "failed"
+  downloadUrl String? // URL assinada de curta duração no S3, gerada quando status = "ready"
+  requestedAt DateTime  @default(now())
+  readyAt     DateTime?
+  expiresAt   DateTime? // URL assinada expira; usuário precisa solicitar de novo depois disso
+
+  @@index([userId, requestedAt])
+}
+
+model AccountDeletionRequest {
+  id                  String    @id @default(cuid())
+  userId              String
+  status              String // "requested" | "grace_period" | "cancelled" | "completed"
+  requestedAt         DateTime  @default(now())
+  scheduledDeletionAt DateTime // requestedAt + período de carência (ver seção 6)
+  cancelledAt         DateTime?
+  completedAt         DateTime?
+
+  @@index([userId, requestedAt])
+}
