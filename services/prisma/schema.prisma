@@ -159,3 +159,69 @@ model HealthDataAccessLog {
 
   @@index([userId, accessedAt])
 }
+
+// Spec 05 — Declaração de Objetivo, Plano de Ação e Treino Personalizado
+// docs/03-specs/05-objetivo-plano-treino.md, seção 4
+
+model HealthCycle {
+  id                    String    @id @default(cuid())
+  userId                String
+  objectiveText         String // texto livre do objetivo — único campo obrigatório desta spec
+  objectiveCategory     String? // "massa_magra" | "perda_gordura" | "manutencao" | "outro"
+  status                String // "objective_set" | "generating" | "generated" | "failed"
+  actionPlanText        String? // plano de ação gerado (nutrição, treino, sono) em linguagem simples
+  dailyCalorieGoal      Int? // meta calórica estimada (RF21) — null se perfil/peso insuficientes
+  nextCycleExpectedDate DateTime? // data esperada do próximo acompanhamento médico (RF19), informada pelo usuário
+  contextSnapshot       Json? // snapshot do contexto agregado, para auditoria/debug. REGRA DE
+  // SEGURANÇA: prescrições (Spec 04) NUNCA aparecem aqui em texto
+  // plano, nem parcialmente. Se houver prescrição no contexto, este
+  // campo grava apenas um placeholder redigido (ex.: "3 prescrição(ões)
+  // incluída(s) como contexto histórico — conteúdo não persistido por
+  // segurança"). O texto decifrado da prescrição existe apenas em
+  // memória, na estrutura efêmera montada para a chamada à IA — nunca
+  // é escrito neste campo nem em nenhum outro lugar do banco
+  createdAt   DateTime  @default(now())
+  generatedAt DateTime?
+
+  workoutPlan     WorkoutPlan?
+  feedbackEntries CycleFeedback[]
+
+  @@index([userId, createdAt])
+}
+
+model CycleFeedback {
+  id                    String   @id @default(cuid())
+  healthCycleId         String
+  feedbackText          String // texto livre do usuário criticando/ajustando o plano ou treino
+  createdAt             DateTime @default(now())
+  triggeredRegeneration Boolean  @default(false) // true se esse feedback disparou nova geração
+
+  healthCycle HealthCycle @relation(fields: [healthCycleId], references: [id])
+
+  @@index([healthCycleId, createdAt])
+}
+
+model WorkoutPlan {
+  id            String  @id @default(cuid())
+  healthCycleId String  @unique
+  userEdited    Boolean @default(false)
+
+  healthCycle HealthCycle       @relation(fields: [healthCycleId], references: [id])
+  exercises   WorkoutExercise[]
+}
+
+model WorkoutExercise {
+  id            String  @id @default(cuid())
+  workoutPlanId String
+  dayLabel      String // ex.: "Dia A — Peito/Tríceps"
+  orderIndex    Int
+  exerciseName  String
+  sets          Int
+  reps          String // texto livre, ex.: "8-12" ou "até a falha"
+  restSeconds   Int?
+  notes         String? // ex.: nota de progressão
+
+  workoutPlan WorkoutPlan @relation(fields: [workoutPlanId], references: [id])
+
+  @@index([workoutPlanId, dayLabel, orderIndex])
+}

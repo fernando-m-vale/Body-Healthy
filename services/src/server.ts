@@ -11,6 +11,7 @@ import examsRoutes from "./modules/exams/exams.routes";
 import imagingReportsRoutes from "./modules/imaging-reports/imaging-reports.routes";
 import bioimpedanceRoutes from "./modules/bioimpedance/bioimpedance.routes";
 import prescriptionsRoutes from "./modules/prescriptions/prescriptions.routes";
+import cyclesRoutes from "./modules/cycles/cycles.routes";
 
 const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
 
@@ -33,6 +34,7 @@ async function main() {
   await app.register(imagingReportsRoutes);
   await app.register(bioimpedanceRoutes);
   await app.register(prescriptionsRoutes);
+  await app.register(cyclesRoutes);
 
   const port = Number(process.env.PORT ?? 3000);
 

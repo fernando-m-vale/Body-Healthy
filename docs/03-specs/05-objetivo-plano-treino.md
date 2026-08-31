@@ -1,5 +1,5 @@
 # Spec Técnica 05 — Declaração de Objetivo, Plano de Ação e Treino Personalizado
-**Metodologia:** SDD · **Status:** Rascunho v3 · **Data:** 27/08/2026
+**Metodologia:** SDD · **Status:** Rascunho v4 · **Data:** 27/08/2026
 **Cobre:** RF10, RF11, RF12, RF13, RF18 (aplicação), RF19 (campo de data), RF21 (PRD Fase 1) · **Depende de:** Specs 00, 01-04, 06 (fontes de dado e regras de agregação), Architecture Doc v3
 
 ---
@@ -45,9 +45,14 @@ model HealthCycle {
   actionPlanText         String?  // plano de ação gerado (nutrição, treino, sono) em linguagem simples
   dailyCalorieGoal       Int?     // meta calórica estimada (RF21) — null se perfil/peso insuficientes
   nextCycleExpectedDate  DateTime? // data esperada do próximo acompanhamento médico (RF19), informada pelo usuário
-  contextSnapshot        Json?    // snapshot do contexto agregado usado na geração (auditoria/debug —
-                                    // nunca inclui nameEncrypted/notesEncrypted em texto plano das
-                                    // prescrições, só a versão decifrada momentânea usada no prompt)
+  contextSnapshot        Json?    // snapshot do contexto agregado, para auditoria/debug. REGRA DE
+                                    // SEGURANÇA: prescrições (Spec 04) NUNCA aparecem aqui em texto
+                                    // plano, nem parcialmente. Se houver prescrição no contexto, este
+                                    // campo grava apenas um placeholder redigido (ex.: "3 prescrição(ões)
+                                    // incluída(s) como contexto histórico — conteúdo não persistido por
+                                    // segurança"). O texto decifrado da prescrição existe apenas em
+                                    // memória, na estrutura efêmera montada para a chamada à IA — nunca
+                                    // é escrito neste campo nem em nenhum outro lugar do banco
   createdAt              DateTime @default(now())
   generatedAt            DateTime?
 
@@ -102,7 +107,7 @@ Antes de qualquer chamada à IA, o backend monta um `contextSnapshot` seguindo e
 - `LabExam`: somente registros com `status: "confirmed"`, usando o valor final (já com correções do usuário), incluindo `trend` quando disponível
 - `ImagingReport`: somente registros com `status: "reviewed"` e `userFlagged: false` (um resumo sinalizado como incorreto não entra no contexto até ser resolvido — ver Spec 02, seção 6)
 - `BioimpedanceEntry`: todos os registros do usuário, com tendência calculada dinamicamente (Spec 03)
-- `PrescriptionEntry`: linha do tempo decifrada **apenas em memória, no momento da chamada**, nunca persistida em texto plano fora do `contextSnapshot` — e mesmo ali, o prompt para a IA deve instruir explicitamente que este dado é contexto histórico, nunca base para sugestão de ajuste
+- `PrescriptionEntry`: linha do tempo decifrada **apenas em memória, no momento da chamada à IA** — o texto decifrado nunca é gravado no banco, nem no `contextSnapshot` persistido nem em qualquer outro campo. A estrutura completa (com prescrição em texto plano) existe só como variável em memória durante a montagem do prompt; o que é persistido em `contextSnapshot` é uma versão com a parte de prescrições redigida (ver nota do model, seção 4). O prompt para a IA deve instruir explicitamente que este dado é contexto histórico, nunca base para sugestão de ajuste
 - `UserProfile` (Spec 00): altura, idade calculada da data de nascimento, sexo biológico para cálculo e nível de atividade, quando preenchidos
 - Taxa de adesão do ciclo anterior: aplicar a regra definida na Spec 06, seção 6 (só entra no contexto com 2+ check-ins no ciclo anterior)
 - `dailyCalorieGoal` deste ciclo (ver seção 5.1), quando calculável
@@ -178,6 +183,7 @@ O treino gerado deve estar sempre visível de forma completa dentro do próprio 
 - [ ] Usuário consegue gerar plano e treino preenchendo apenas o objetivo, sem nenhum outro dado
 - [ ] Plano gerado reflete dado disponível quando existe (ex.: menção a tendência de bioimpedância, se houver)
 - [ ] Nenhum trecho do plano gerado sugere ajuste, dose, início ou fim de medicação/hormônio
+- [ ] `contextSnapshot` persistido no banco nunca contém nome/nota de prescrição em texto plano, nem parcial — verificável por dump direto da tabela `HealthCycle` (mesmo padrão de verificação já usado na Spec 04)
 - [ ] Usuário consegue editar o treino gerado antes de exportar
 - [ ] Usuário consegue enviar feedback livre sobre o plano/treino e receber uma versão ajustada
 - [ ] Treino completo está sempre visível em tela, independente de o usuário exportar ou não

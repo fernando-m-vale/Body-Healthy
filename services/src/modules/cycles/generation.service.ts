@@ -1,0 +1,86 @@
+import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import { getAnthropicClient } from "../../lib/ai-document";
+import { generationResultSchema, type GenerationResult } from "./generation.schema";
+import type { AIContext } from "./context.types";
+
+const GENERATION_MODEL = "claude-opus-5";
+
+const SYSTEM_INSTRUCTIONS = `Você gera DUAS saídas obrigatórias e igualmente importantes a partir do objetivo declarado pelo usuário e do contexto de saúde disponível:
+1. actionPlanText: um plano de ação de saúde (nutrição, treino, sono) em linguagem simples.
+2. workoutDays: o MESMO treino mencionado no actionPlanText, mas como dado estruturado — dias, exercícios, séries, repetições. Isso NÃO é um resumo nem um adendo opcional: é a contraparte estruturada de tudo que o actionPlanText descreve sobre o treino. Se o actionPlanText menciona "4 sessões, dias A/B/C/D", o workoutDays precisa ter exatamente esses dias, cada um com sua lista real de exercícios (nome, séries, repetições, descanso). Nunca deixe workoutDays vazio ou incompleto enquanto o actionPlanText descreve treino em prosa — as duas saídas têm que contar a mesma história, uma em texto, outra estruturada.
+
+Regras obrigatórias, sem exceção:
+- Você NUNCA sugere, ajusta, recomenda início ou fim de dose de medicação, hormônio ou suplemento. Qualquer prescrição no contexto é APENAS histórico de correlação — nunca use isso para recomendar mudança de dose, início ou fim de tratamento. Isso é decisão exclusiva do médico do usuário.
+- Você não emite diagnóstico nem análise médica. O plano é informativo, não substitui acompanhamento médico.
+- Funcione com qualquer nível de contexto — se só houver o objetivo declarado, gere um plano genérico de boa qualidade mesmo assim, incluindo workoutDays estruturado. Nunca recuse por "dado insuficiente".
+- Se dado de bioimpedância ou exame estiver disponível, use tendências (subindo/descendo/estável) para personalizar o plano quando fizer sentido.
+- Se a meta calórica foi calculada com base biológica ambígua (sexo "prefiro_nao_informar"), mencione no plano que a estimativa calórica é menos precisa nesse caso.`;
+
+function formatContext(context: AIContext): string {
+  return JSON.stringify(context, null, 2);
+}
+
+function buildGenerationPrompt(objectiveText: string, context: AIContext): string {
+  return `Objetivo declarado pelo usuário para este ciclo: "${objectiveText}"
+
+Contexto de saúde disponível (JSON):
+${formatContext(context)}
+
+Gere o plano de ação e o treino estruturado.`;
+}
+
+function buildRegenerationPrompt(
+  objectiveText: string,
+  context: AIContext,
+  currentActionPlanText: string,
+  currentWorkoutDays: GenerationResult["workoutDays"],
+  feedbackText: string,
+): string {
+  return `Objetivo declarado pelo usuário para este ciclo: "${objectiveText}"
+
+Contexto de saúde disponível (JSON):
+${formatContext(context)}
+
+Plano de ação atual:
+${currentActionPlanText}
+
+Treino atual (JSON):
+${JSON.stringify(currentWorkoutDays, null, 2)}
+
+O usuário enviou o seguinte feedback/crítica sobre o plano e/ou treino atuais:
+"${feedbackText}"
+
+Gere uma versão ajustada do plano de ação e do treino, mantendo o que já funcionava e ajustando especificamente o que o feedback aponta. Se o feedback não der sinal suficiente para uma mudança clara, é aceitável que o resultado fique parecido com o atual.`;
+}
+
+async function callGeneration(userPrompt: string): Promise<GenerationResult> {
+  const response = await getAnthropicClient().messages.parse({
+    model: GENERATION_MODEL,
+    max_tokens: 16000,
+    system: SYSTEM_INSTRUCTIONS,
+    messages: [{ role: "user", content: userPrompt }],
+    output_config: { format: zodOutputFormat(generationResultSchema) },
+  });
+
+  if (!response.parsed_output) {
+    throw new Error("Falha ao interpretar a resposta estruturada da IA");
+  }
+
+  return response.parsed_output;
+}
+
+export function generatePlan(objectiveText: string, context: AIContext): Promise<GenerationResult> {
+  return callGeneration(buildGenerationPrompt(objectiveText, context));
+}
+
+export function regeneratePlan(
+  objectiveText: string,
+  context: AIContext,
+  currentActionPlanText: string,
+  currentWorkoutDays: GenerationResult["workoutDays"],
+  feedbackText: string,
+): Promise<GenerationResult> {
+  return callGeneration(
+    buildRegenerationPrompt(objectiveText, context, currentActionPlanText, currentWorkoutDays, feedbackText),
+  );
+}
