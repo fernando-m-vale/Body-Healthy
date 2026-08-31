@@ -15,6 +15,7 @@ import cyclesRoutes from "./modules/cycles/cycles.routes";
 import checkInsRoutes from "./modules/check-ins/check-ins.routes";
 import workoutLogsRoutes from "./modules/workout-logs/workout-logs.routes";
 import calorieLogsRoutes from "./modules/calorie-logs/calorie-logs.routes";
+import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 
 const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
 
@@ -41,6 +42,7 @@ async function main() {
   await app.register(checkInsRoutes);
   await app.register(workoutLogsRoutes);
   await app.register(calorieLogsRoutes);
+  await app.register(dashboardRoutes);
 
   const port = Number(process.env.PORT ?? 3000);
 
