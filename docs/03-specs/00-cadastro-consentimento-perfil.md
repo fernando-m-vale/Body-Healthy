@@ -1,5 +1,5 @@
 # Spec Técnica 00 — Cadastro, Consentimento e Perfil do Usuário
-**Metodologia:** SDD · **Status:** Rascunho v2 · **Data:** 27/08/2026
+**Metodologia:** SDD · **Status:** Rascunho v3 · **Data:** 27/08/2026
 **Cobre:** RF20, RF23, RF24 (PRD Fase 1) · **Depende de:** Architecture Doc v4 (autenticação, seção 5)
 
 ---
@@ -96,6 +96,7 @@ model UserProfile {
 | Endpoint | Método | Descrição |
 |---|---|---|
 | `/auth/signup` | POST | Cria conta via e-mail/senha |
+| `/auth/login` | POST | Autentica conta via e-mail/senha (e-mail + senha → token) |
 | `/auth/google` | POST | Cria ou autentica conta via Google OAuth |
 | `/consent/health-data` | POST | Registra o aceite do consentimento de dado de saúde |
 | `/consent/health-data` | GET | Retorna status atual do consentimento (aceito, versão, data) |

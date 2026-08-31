@@ -11,3 +11,44 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// Spec 00 — Cadastro, Consentimento e Perfil do Usuário
+// docs/03-specs/00-cadastro-consentimento-perfil.md, seção 4
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  authProvider  String // "email_password" | "google"
+  googleSub     String? // identificador único do Google, se authProvider = "google"
+  passwordHash  String? // null se authProvider = "google" (sem senha própria)
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  consent HealthDataConsent?
+  profile UserProfile?
+
+  @@index([email])
+}
+
+model HealthDataConsent {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  consentedAt    DateTime // momento exato do aceite — evidência para LGPD
+  consentVersion String // versão do texto de consentimento aceito (rastreabilidade se o texto mudar)
+  revokedAt      DateTime? // se o usuário revogar consentimento depois (ver seção 8)
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model UserProfile {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  heightCm             Float?
+  birthDate            DateTime?
+  biologicalSexForCalc String? // "masculino" | "feminino" | "prefiro_nao_informar" | null
+  activityLevel        String? // "sedentario" | "leve" | "moderado" | "intenso" | "muito_intenso"
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
