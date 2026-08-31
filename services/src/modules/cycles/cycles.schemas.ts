@@ -27,6 +27,12 @@ export const feedbackBodySchema = z.object({
 });
 export type FeedbackBody = z.infer<typeof feedbackBodySchema>;
 
+// Spec 06, seção 9 — PUT /cycles/:id/next-cycle-date
+export const nextCycleDateBodySchema = z.object({
+  nextCycleExpectedDate: z.string().datetime().nullable(),
+});
+export type NextCycleDateBody = z.infer<typeof nextCycleDateBodySchema>;
+
 export const exerciseSchema = z.object({
   id: z.string(),
   dayLabel: z.string(),

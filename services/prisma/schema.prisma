@@ -225,3 +225,49 @@ model WorkoutExercise {
 
   @@index([workoutPlanId, dayLabel, orderIndex])
 }
+
+// Spec 06 — Check-in Semanal e Fechamento do Loop de Engajamento
+// docs/03-specs/06-checkin-engajamento.md, seção 4
+
+model WeeklyCheckIn {
+  id               String   @id @default(cuid())
+  userId           String
+  healthCycleId    String? // ciclo ativo no momento do check-in, se houver (RF04a — pode ser null)
+  weekStartDate    DateTime // início da semana de referência (ex.: sempre a segunda-feira da semana)
+  weightKg         Float?
+  workoutAdherence String? // "completo" | "parcial" | "nao_realizado" | null
+  energyLevel      Int? // escala simples 1-5
+  sleepQuality     Int? // escala simples 1-5
+  createdAt        DateTime @default(now())
+
+  @@unique([userId, weekStartDate])
+  @@index([userId, weekStartDate])
+}
+
+model WorkoutExecutionLog {
+  id                   String   @id @default(cuid())
+  userId               String
+  workoutExerciseId    String? // referência ao exercício gerado na Spec 05, se o log for vinculado a ele
+  exerciseNameFreeText String? // usado quando o usuário loga algo fora do treino gerado
+  performedAt          DateTime
+  setsCompleted        Int?
+  repsCompleted        String?
+  weightUsedKg         Float?
+  notes                String?
+  createdAt            DateTime @default(now())
+
+  @@index([userId, performedAt])
+}
+
+model DailyCalorieLog {
+  id               String   @id @default(cuid())
+  userId           String
+  healthCycleId    String? // ciclo ativo no momento do registro, se houver
+  logDate          DateTime // dia a que o registro se refere
+  caloriesConsumed Int?
+  notes            String? // observação livre opcional (ex.: "dia de evento social")
+  createdAt        DateTime @default(now())
+
+  @@unique([userId, logDate])
+  @@index([userId, logDate])
+}

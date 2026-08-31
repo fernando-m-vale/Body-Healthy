@@ -6,6 +6,7 @@ import {
   createCycleBodySchema,
   updateExerciseBodySchema,
   feedbackBodySchema,
+  nextCycleDateBodySchema,
   cycleSummarySchema,
   cycleDetailSchema,
   exerciseSchema,
@@ -20,6 +21,7 @@ import {
   listCycles,
   updateExercise,
   createFeedback,
+  updateNextCycleDate,
   CycleNotFoundError,
   ExerciseNotFoundError,
   CycleGeneratingError,
@@ -132,6 +134,34 @@ export default async function cyclesRoutes(app: FastifyInstance) {
         }
         if (err instanceof CycleGeneratingError) {
           return reply.code(409).send({ error: "Ciclo já está gerando/regenerando — aguarde concluir" });
+        }
+        throw err;
+      }
+    },
+  );
+
+  server.put(
+    "/cycles/:id/next-cycle-date",
+    {
+      schema: {
+        params: cycleIdParamsSchema,
+        body: nextCycleDateBodySchema,
+        response: { 200: cycleSummarySchema, 404: errorResponseSchema },
+      },
+      preHandler,
+    },
+    async (request, reply) => {
+      try {
+        const cycle = await updateNextCycleDate(
+          app.prisma,
+          request.user.sub,
+          request.params.id,
+          request.body.nextCycleExpectedDate,
+        );
+        return reply.send(cycle);
+      } catch (err) {
+        if (err instanceof CycleNotFoundError) {
+          return reply.code(404).send({ error: "Ciclo não encontrado" });
         }
         throw err;
       }

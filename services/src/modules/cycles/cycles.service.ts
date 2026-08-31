@@ -10,6 +10,7 @@ import {
   type ObjectiveCategory,
 } from "../../lib/calorie";
 import { listEntriesWithTrend } from "../bioimpedance/bioimpedance.service";
+import { calculateAdherenceRate } from "../check-ins/adherence";
 import type { CreateCycleBody, UpdateExerciseBody } from "./cycles.schemas";
 import type { AIContext } from "./context.types";
 
@@ -40,6 +41,34 @@ export function listCycles(prisma: PrismaClient, userId: string) {
   return prisma.healthCycle.findMany({ where: { userId }, orderBy: { createdAt: "desc" } });
 }
 
+// "Ciclo ativo" (Spec 06, usado por check-ins/calorie-logs para preencher
+// healthCycleId no momento do registro): o HealthCycle mais recente do
+// usuário já concluído com sucesso — um ciclo ainda "generating" ou que
+// falhou não conta como ativo pro usuário (decisão registrada no
+// planejamento da Spec 06).
+export function getActiveCycleId(prisma: PrismaClient, userId: string): Promise<string | null> {
+  return prisma.healthCycle
+    .findFirst({ where: { userId, status: "generated" }, orderBy: { createdAt: "desc" }, select: { id: true } })
+    .then((cycle) => cycle?.id ?? null);
+}
+
+export async function updateNextCycleDate(
+  prisma: PrismaClient,
+  userId: string,
+  cycleId: string,
+  nextCycleExpectedDate: string | null,
+) {
+  const cycle = await prisma.healthCycle.findFirst({ where: { id: cycleId, userId } });
+  if (!cycle) {
+    throw new CycleNotFoundError();
+  }
+
+  return prisma.healthCycle.update({
+    where: { id: cycleId },
+    data: { nextCycleExpectedDate: nextCycleExpectedDate ? new Date(nextCycleExpectedDate) : null },
+  });
+}
+
 interface AggregatedContext {
   aiContext: AIContext;
   redactedSnapshot: Record<string, unknown>;
@@ -56,13 +85,24 @@ export async function aggregateContext(
   objectiveCategory: string | null,
   cycleId: string,
 ): Promise<AggregatedContext> {
-  const [labExams, imagingReports, bioimpedance, prescriptions, profile] = await Promise.all([
+  const [labExams, imagingReports, bioimpedance, prescriptions, profile, previousCycle] = await Promise.all([
     prisma.labExam.findMany({ where: { userId, status: "confirmed" }, include: { markers: true } }),
     prisma.imagingReport.findMany({ where: { userId, status: "reviewed", userFlagged: false } }),
     listEntriesWithTrend(prisma, userId),
     prisma.prescriptionEntry.findMany({ where: { userId } }),
     prisma.userProfile.findUnique({ where: { userId } }),
+    prisma.healthCycle.findFirst({
+      where: { userId, status: "generated", id: { not: cycleId } },
+      orderBy: { createdAt: "desc" },
+      select: { id: true },
+    }),
   ]);
+
+  // Taxa de adesão do ciclo anterior (Spec 06, seção 6 — RF18). Ignora
+  // semanas sem check-in preenchido; exige 2+ check-ins pra entrar no
+  // contexto. Não precisa de redação como a prescrição: é só um número,
+  // não identifica nada sensível.
+  const adherenceRate = await calculateAdherenceRate(prisma, userId, previousCycle?.id ?? null);
 
   // Leitura de prescrição também gera log de auditoria (regra geral estabelecida
   // na Spec 04) — fail-closed: se o log não gravar, a agregação (e a geração)
@@ -142,6 +182,7 @@ export async function aggregateContext(
         }
       : null,
     dailyCalorieGoal,
+    adherenceRate,
   };
 
   const redactedSnapshot: Record<string, unknown> = {
@@ -154,6 +195,7 @@ export async function aggregateContext(
         : "nenhuma prescrição no contexto",
     profile: aiContext.profile,
     dailyCalorieGoal,
+    adherenceRate,
   };
 
   return { aiContext, redactedSnapshot, dailyCalorieGoal };

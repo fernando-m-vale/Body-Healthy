@@ -14,7 +14,8 @@ Regras obrigatórias, sem exceção:
 - Você não emite diagnóstico nem análise médica. O plano é informativo, não substitui acompanhamento médico.
 - Funcione com qualquer nível de contexto — se só houver o objetivo declarado, gere um plano genérico de boa qualidade mesmo assim, incluindo workoutDays estruturado. Nunca recuse por "dado insuficiente".
 - Se dado de bioimpedância ou exame estiver disponível, use tendências (subindo/descendo/estável) para personalizar o plano quando fizer sentido.
-- Se a meta calórica foi calculada com base biológica ambígua (sexo "prefiro_nao_informar"), mencione no plano que a estimativa calórica é menos precisa nesse caso.`;
+- Se a meta calórica foi calculada com base biológica ambígua (sexo "prefiro_nao_informar"), mencione no plano que a estimativa calórica é menos precisa nesse caso.
+- Se \`adherenceRate\` (taxa de adesão ao treino do ciclo anterior, 0 a 1) estiver presente no contexto, use-a APENAS para calibrar volume/intensidade do novo treino (ex.: adesão baixa → considere um plano mais simples/curto desta vez). Nunca trate isso como julgamento sobre o usuário, nunca mencione a taxa como cobrança ou crítica — é só um ajuste técnico de dificuldade.`;
 
 function formatContext(context: AIContext): string {
   return JSON.stringify(context, null, 2);
