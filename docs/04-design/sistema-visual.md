@@ -60,6 +60,7 @@ Isso significa, na prática:
 | Bottom sheet | Usado para decisões contextuais de poucas opções (ex.: as 3 opções pós-sinalização de laudo) — nunca para formulário longo, isso é tela cheia |
 | Dropzone de upload | Borda tracejada `--line`, ícone circular Vital, sem preview de imagem decorativa |
 | Tab bar | 4 itens no máximo, ícone + label, item ativo em Vital |
+| Campo de data | Mesmo visual do campo de texto padrão, mas sempre abre um seletor nativo (diálogo no Android, picker inline com "Concluir" no iOS) — nunca digitação livre de data. Mostra a data já formatada no lugar do placeholder, curta (`13/12/1984`, ex.: Nascimento) ou longa (`30 de novembro de 2026`, ex.: Próximo exame previsto), conforme o mockup de cada tela. Implementado em `apps/src/components/DateField.tsx` — reaproveitar em toda tela nova com campo de data, não recriar por tela |
 
 ## 6. Padrões de conteúdo (copy)
 
