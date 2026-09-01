@@ -6,9 +6,11 @@ import { generatePlan, regeneratePlan } from "./generation.service";
 import { containsMedicationAdjustmentLanguage } from "./safety-check";
 import type { GenerationResult } from "./generation.schema";
 
-// Limite de tentativas da checagem de segurança (Spec 05, seção 9) — decisão
-// registrada no planejamento desta tarefa: 2 tentativas, para não entrar em
-// loop infinito se a IA insistir em linguagem de ajuste de medicação.
+// Limite de tentativas da checagem de segurança e de aderência a
+// weeklyTrainingDays (Spec 05, seção 9 / v6 seção 5) — decisão registrada
+// no planejamento desta tarefa: 2 tentativas, para não entrar em loop
+// infinito se a IA insistir em linguagem de ajuste de medicação ou não
+// respeitar o número de dias pedido.
 const MAX_SAFETY_ATTEMPTS = 2;
 
 function textsToCheck(result: GenerationResult): string[] {
@@ -16,20 +18,40 @@ function textsToCheck(result: GenerationResult): string[] {
   return [result.actionPlanText, ...phaseTexts];
 }
 
-async function generateWithSafetyCheck(
+function countDistinctDayLabels(result: GenerationResult): number {
+  return new Set(result.workoutDays.map((day) => day.dayLabel)).size;
+}
+
+function matchesRequestedTrainingDays(result: GenerationResult, weeklyTrainingDays: number | null): boolean {
+  return weeklyTrainingDays == null || countDistinctDayLabels(result) === weeklyTrainingDays;
+}
+
+async function generateWithValidation(
   attempt: (attemptNumber: number) => Promise<GenerationResult>,
+  weeklyTrainingDays: number | null,
   logger: FastifyBaseLogger,
   cycleId: string,
 ): Promise<GenerationResult | null> {
   for (let i = 1; i <= MAX_SAFETY_ATTEMPTS; i++) {
     const result = await attempt(i);
-    if (!containsMedicationAdjustmentLanguage(textsToCheck(result))) {
+    const safetyOk = !containsMedicationAdjustmentLanguage(textsToCheck(result));
+    const dayCountOk = matchesRequestedTrainingDays(result, weeklyTrainingDays);
+
+    if (safetyOk && dayCountOk) {
       return result;
     }
-    logger.warn(
-      { cycleId, attempt: i },
-      "Texto gerado contém linguagem de ajuste de medicação — descartado, tentando novamente",
-    );
+    if (!safetyOk) {
+      logger.warn(
+        { cycleId, attempt: i },
+        "Texto gerado contém linguagem de ajuste de medicação — descartado, tentando novamente",
+      );
+    }
+    if (!dayCountOk) {
+      logger.warn(
+        { cycleId, attempt: i, weeklyTrainingDays, got: countDistinctDayLabels(result) },
+        "Número de dias gerados não bate com weeklyTrainingDays — descartado, tentando novamente",
+      );
+    }
   }
   return null;
 }
@@ -121,10 +143,18 @@ export async function runGenerationJob(
     await prisma.healthCycle.update({ where: { id: cycleId }, data: { status: "generating" } });
 
     const { aiContext, redactedSnapshot, dailyCalorieGoal, proteinGramsGoal, carbGramsGoal, fatGramsGoal, previousExerciseNames } =
-      await aggregateContext(prisma, keyProvider, userId, cycle.objectiveCategory, cycleId);
+      await aggregateContext(
+        prisma,
+        keyProvider,
+        userId,
+        cycle.objectiveCategory,
+        cycle.weeklyTrainingDays,
+        cycleId,
+      );
 
-    const result = await generateWithSafetyCheck(
+    const result = await generateWithValidation(
       () => generatePlan(cycle.objectiveText, aiContext),
+      cycle.weeklyTrainingDays,
       logger,
       cycleId,
     );
@@ -170,7 +200,14 @@ export async function runRegenerationJob(
     });
 
     const { aiContext, redactedSnapshot, dailyCalorieGoal, proteinGramsGoal, carbGramsGoal, fatGramsGoal, previousExerciseNames } =
-      await aggregateContext(prisma, keyProvider, userId, cycle.objectiveCategory, cycleId);
+      await aggregateContext(
+        prisma,
+        keyProvider,
+        userId,
+        cycle.objectiveCategory,
+        cycle.weeklyTrainingDays,
+        cycleId,
+      );
 
     const currentWorkoutDays: GenerationResult["workoutDays"] = [];
     for (const exercise of cycle.workoutPlan?.exercises ?? []) {
@@ -197,7 +234,7 @@ export async function runRegenerationJob(
       focusText: phase.focusText,
     }));
 
-    const result = await generateWithSafetyCheck(
+    const result = await generateWithValidation(
       () =>
         regeneratePlan(
           cycle.objectiveText,
@@ -207,6 +244,7 @@ export async function runRegenerationJob(
           currentPhases,
           feedbackText,
         ),
+      cycle.weeklyTrainingDays,
       logger,
       cycleId,
     );

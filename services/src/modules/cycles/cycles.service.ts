@@ -25,6 +25,7 @@ export function createCycle(prisma: PrismaClient, userId: string, body: CreateCy
       userId,
       objectiveText: body.objectiveText,
       objectiveCategory: body.objectiveCategory ?? null,
+      weeklyTrainingDays: body.weeklyTrainingDays ?? null,
       nextCycleExpectedDate: body.nextCycleExpectedDate ? new Date(body.nextCycleExpectedDate) : null,
       status: "objective_set",
     },
@@ -94,6 +95,7 @@ export async function aggregateContext(
   keyProvider: KeyProvider,
   userId: string,
   objectiveCategory: string | null,
+  weeklyTrainingDays: number | null,
   cycleId: string,
 ): Promise<AggregatedContext> {
   const [labExams, imagingReports, bioimpedance, prescriptions, profile, previousCycle] = await Promise.all([
@@ -212,6 +214,7 @@ export async function aggregateContext(
     proteinGramsGoal,
     carbGramsGoal,
     fatGramsGoal,
+    weeklyTrainingDays,
     adherenceRate,
   };
 
@@ -228,6 +231,7 @@ export async function aggregateContext(
     proteinGramsGoal,
     carbGramsGoal,
     fatGramsGoal,
+    weeklyTrainingDays,
     adherenceRate,
   };
 

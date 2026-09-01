@@ -168,6 +168,9 @@ model HealthCycle {
   userId                String
   objectiveText         String // texto livre do objetivo — único campo obrigatório desta spec
   objectiveCategory     String? // "massa_magra" | "perda_gordura" | "manutencao" | "outro"
+  weeklyTrainingDays    Int? // quantas vezes por semana o usuário pretende treinar (RF10) — opcional;
+  // quando ausente, a IA decide um número razoável com base em objectiveCategory
+  // e UserProfile.activityLevel (spec v6, seção 5)
   status                String // "objective_set" | "generating" | "generated" | "failed"
   actionPlanText        String? // plano de ação gerado (nutrição, treino, sono) em linguagem simples
   dailyCalorieGoal      Int? // meta calórica estimada (RF21) — null se perfil/peso insuficientes

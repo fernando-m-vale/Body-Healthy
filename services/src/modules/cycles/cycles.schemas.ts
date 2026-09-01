@@ -5,6 +5,7 @@ export const objectiveCategorySchema = z.enum(["massa_magra", "perda_gordura", "
 export const createCycleBodySchema = z.object({
   objectiveText: z.string().min(1),
   objectiveCategory: objectiveCategorySchema.nullable().optional(),
+  weeklyTrainingDays: z.number().int().min(1).max(7).nullable().optional(),
   nextCycleExpectedDate: z.string().datetime().nullable().optional(),
 });
 export type CreateCycleBody = z.infer<typeof createCycleBodySchema>;
@@ -65,6 +66,7 @@ export const cycleSummarySchema = z.object({
   id: z.string(),
   objectiveText: z.string(),
   objectiveCategory: z.string().nullable(),
+  weeklyTrainingDays: z.number().nullable(),
   status: z.string(),
   dailyCalorieGoal: z.number().nullable(),
   proteinGramsGoal: z.number().nullable(),

@@ -47,6 +47,11 @@ export interface AIContext {
   proteinGramsGoal: number | null;
   carbGramsGoal: number | null;
   fatGramsGoal: number | null;
+  // Quantas vezes por semana o usuário pretende treinar (RF10, spec v6,
+  // seção 5) — quando presente, workoutDays PRECISA ter exatamente esse
+  // número de dayLabels distintos (reforçado em SYSTEM_INSTRUCTIONS e
+  // validado em código em cycles.job.ts). null = IA decide livremente.
+  weeklyTrainingDays: number | null;
   // Taxa de adesão do ciclo anterior (Spec 06, seção 6 — RF18), 0-1, ou null
   // se não houver ciclo anterior ou dado insuficiente (<2 check-ins).
   adherenceRate: number | null;
