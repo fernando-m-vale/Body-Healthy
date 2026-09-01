@@ -560,6 +560,39 @@
   .set-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--line); font-size:14px; color:var(--ink); font-weight:500; }
   .set-row.danger{ color:var(--pulse-dark); }
   .set-chevron{ color:var(--muted); font-size:14px; }
+
+  /* ---- Screen 23: Confirmar exclusão ---- */
+  .s23{ padding:26px 24px 24px; justify-content:space-between; }
+  .s23 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 16px; }
+  .warn-box{
+    background:#FFEAE3; border-radius:16px; padding:16px 18px;
+    font-size:13px; line-height:1.6; color:var(--pulse-dark); margin-bottom:18px;
+  }
+  .consequence-list{ margin-bottom:22px; }
+  .cq-row{ display:flex; gap:10px; padding:8px 0; font-size:13px; color:var(--ink); }
+  .cq-row .m{ color:var(--pulse); font-weight:700; }
+  .confirm-field{ margin-top:4px; }
+  .btn-danger{
+    width:100%; background:var(--pulse); color:#fff; border:none; border-radius:100px;
+    padding:16px; font-family:var(--font-body); font-weight:600; font-size:15px;
+  }
+
+  /* ---- Screen 24: Carência ativa ---- */
+  .s24{ padding:26px 24px 24px; align-items:center; text-align:center; justify-content:center; }
+  .s24-eyebrow{ font-size:12px; color:var(--muted); margin-bottom:14px; letter-spacing:0.02em; text-transform:uppercase; font-weight:600; }
+  .s24-count{ font-family:var(--font-display); font-weight:700; font-size:56px; color:var(--pulse); line-height:1; }
+  .s24-count-label{ font-size:14px; color:var(--muted); margin-top:6px; margin-bottom:26px; }
+  .s24-detail{ font-size:13px; color:var(--ink); line-height:1.6; max-width:230px; margin-bottom:30px; }
+  .s24-detail b{ font-weight:600; }
+
+  /* ---- Screen 25: Exportação pronta ---- */
+  .s25{ padding:26px 24px 24px; justify-content:space-between; }
+  .s25 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 20px; }
+  .check-badge{
+    width:52px; height:52px; border-radius:50%; background:#E4F5EE;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; color:var(--vital); margin-bottom:18px;
+  }
   .section-title{
     font-family:var(--font-body);
     font-weight:600;
@@ -1339,6 +1372,65 @@
       </div>
     </div>
     <p class="label">Configurações</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s23">
+        <div>
+          <h2>Excluir sua conta</h2>
+          <div class="warn-box">
+            Você terá <b>7 dias</b> pra mudar de ideia. Depois disso, a exclusão é definitiva e não pode ser desfeita.
+          </div>
+          <div class="consequence-list">
+            <div class="cq-row"><span class="m">—</span> Todos os exames, laudos e bioimpedância</div>
+            <div class="cq-row"><span class="m">—</span> Linha do tempo de prescrições</div>
+            <div class="cq-row"><span class="m">—</span> Planos e treinos gerados, histórico de check-in</div>
+          </div>
+          <div class="field-label">Digite EXCLUIR para confirmar</div>
+          <input class="text-field confirm-field" placeholder="EXCLUIR">
+        </div>
+        <div>
+          <button class="btn-danger">Solicitar exclusão</button>
+          <div class="btn-link">Cancelar</div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Confirmar exclusão</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s24">
+        <div class="s24-eyebrow">Exclusão agendada</div>
+        <div class="s24-count">6 dias</div>
+        <div class="s24-count-label">até a exclusão definitiva</div>
+        <div class="s24-detail">Sua conta será excluída em <b>6 de setembro de 2026</b>. Você pode cancelar a qualquer momento até lá.</div>
+        <button class="btn-primary" style="width:auto; padding-left:28px; padding-right:28px;">Cancelar exclusão</button>
+      </div>
+    </div>
+    <p class="label">Carência ativa</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s25">
+        <div>
+          <div class="check-badge">✓</div>
+          <h2>Seus dados<br>estão prontos</h2>
+          <div class="file-card">
+            <div class="file-ic" style="background:var(--ink); font-size:9px;">JSON</div>
+            <div><div class="file-name">body-healthy-dados-31ago.json</div><div class="file-sub">Todas as categorias incluídas</div></div>
+          </div>
+          <p class="note-text">O link expira em 24 horas. Você pode solicitar uma nova exportação a qualquer momento, sem limite.</p>
+        </div>
+        <button class="btn-primary">Baixar arquivo</button>
+      </div>
+    </div>
+    <p class="label">Exportação pronta</p>
   </div>
 
 </div>

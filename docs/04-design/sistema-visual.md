@@ -1,5 +1,5 @@
 # Guia de Design — Body Healthy
-**Status:** Rascunho v1 · **Data:** 31/08/2026
+**Status:** Rascunho v2 · **Data:** 31/08/2026
 **Cobre:** sistema visual completo (cor, tipografia, componentes) e inventário de telas da Fase 1
 **Depende de:** PRD Fase 1, Specs 00-08 · **Referência viva:** `mockups.html` (neste mesmo diretório)
 
@@ -70,7 +70,7 @@ Isso significa, na prática:
 
 ## 7. Inventário de telas — Fase 1
 
-Todas as 22 telas abaixo têm mockup de alta fidelidade em `mockups.html`, seguindo este sistema. Status refere-se ao design, não à implementação em código.
+As 26 telas abaixo cobrem o inventário da Fase 1. 25 têm mockup de alta fidelidade próprio em `mockups.html`; a tela 7 (upload de laudo de imagem) reaproveita o mockup da tela 4, com copy diferente. Status refere-se ao design, não à implementação em código.
 
 | # | Tela | Spec de origem | Status |
 |---|---|---|---|
@@ -97,15 +97,17 @@ Todas as 22 telas abaixo têm mockup de alta fidelidade em `mockups.html`, segui
 | 21 | Dashboard consolidado | Spec 07 | Desenhada |
 | 22 | Histórico de marcador isolado | Spec 07 | Desenhada |
 | 23 | Configurações / conta | Spec 08 | Desenhada |
+| 24 | Confirmar exclusão de conta | Spec 08 | Desenhada |
+| 25 | Carência ativa (cancelamento) | Spec 08 | Desenhada |
+| 26 | Exportação de dados pronta | Spec 08 | Desenhada |
 
-**Fora deste inventário, ainda sem mockup:** telas de fluxo de exportação/exclusão de conta em si (confirmação de carência, cancelamento) — a lista de Configurações cobre o ponto de entrada, mas as telas de confirmação específicas da Spec 08 ainda não foram desenhadas.
+**Inventário completo.** Todas as telas da Fase 1 têm mockup de alta fidelidade.
 
 ## 8. Fora de escopo deste documento
 
 - Implementação em React Native/Expo (componente por componente) — fica para a fase de código
 - Ícones finais (os mockups usam formas simples/texto como placeholder — biblioteca de ícone real a definir)
 - Animação e transição entre telas
-- Telas de confirmação da Spec 08 (carência de exclusão, cancelamento) — pendente
 
 ---
 *Este guia é vivo: ao adicionar uma tela nova, adicione a linha correspondente na tabela da seção 7 e, se necessário, um componente novo na seção 5 — nunca introduza um padrão visual fora deste sistema sem atualizar este documento primeiro.*
