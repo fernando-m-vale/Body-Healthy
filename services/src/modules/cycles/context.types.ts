@@ -42,6 +42,11 @@ export interface AIContext {
     activityLevel: string | null;
   } | null;
   dailyCalorieGoal: number | null;
+  // Quebra de macronutrientes (Spec 05, seção 5.2) — mesmos pré-requisitos e
+  // mesma condição de null que dailyCalorieGoal.
+  proteinGramsGoal: number | null;
+  carbGramsGoal: number | null;
+  fatGramsGoal: number | null;
   // Taxa de adesão do ciclo anterior (Spec 06, seção 6 — RF18), 0-1, ou null
   // se não houver ciclo anterior ou dado insuficiente (<2 check-ins).
   adherenceRate: number | null;

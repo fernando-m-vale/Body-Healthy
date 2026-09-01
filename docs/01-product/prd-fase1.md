@@ -1,5 +1,5 @@
 # PRD — Fase 1 (MVP) — Body Healthy
-**Metodologia:** BMAD (fase PM) · **Status:** Rascunho v5 · **Data:** 25/08/2026
+**Metodologia:** BMAD (fase PM) · **Status:** Rascunho v6 · **Data:** 25/08/2026
 **Baseado em:** Project Brief v2
 
 ---
@@ -34,7 +34,7 @@ Adulto 28-50 anos, classe A/B, engajado com saúde/fitness, em acompanhamento m�
 - **RF09** — Sistema correlaciona, na mesma linha do tempo visual, exames + bioimpedância + início/fim de prescrições — **apenas como contexto de correlação, nunca como sugestão de causa/efeito clínica**
 
 ### 3.4 Plano de ação e treino
-- **RF10** — Usuário declara objetivo para o ciclo atual (texto livre + categorias sugeridas: ganho de massa magra, perda de gordura, manutenção, outro)
+- **RF10** — Usuário declara objetivo para o ciclo atual (texto livre + categorias sugeridas: ganho de massa magra, perda de gordura, manutenção, outro) e, opcionalmente, quantas vezes por semana pretende treinar — quando informado, o treino gerado respeita esse número de dias
 - **RF11** — Sistema gera plano de ação em linguagem simples (nutrição, treino, sono) a partir do objetivo + dados disponíveis (exames, bioimpedância). Deve funcionar de forma graciosamente degradada: com objetivo apenas, gera plano genérico de qualidade; com mais dados, refina e personaliza
 - **RF12** — Sistema gera treino personalizado estruturado (divisão, exercícios, séries/repetições, progressão)
 - **RF13** — Usuário visualiza o treino completo em tela e pode exportá-lo em formato estruturado genérico (não vinculado a nenhum app específico), para uso manual em qualquer aplicativo de treino de sua escolha (ex.: Hevy, Strong, ou outro) — não é integração via API na Fase 1, é exportação estruturada

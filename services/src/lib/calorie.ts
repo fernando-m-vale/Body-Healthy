@@ -66,3 +66,43 @@ export function calculateDailyCalorieGoal(input: CalorieGoalInput): number {
   }
   return Math.round(tdee);
 }
+
+const PROTEIN_FACTOR_G_PER_KG: Record<ObjectiveCategory, number> = {
+  perda_gordura: 2.2,
+  massa_magra: 2.0,
+  manutencao: 1.8,
+  outro: 1.8,
+};
+
+const FAT_CALORIE_SHARE = 0.25;
+const KCAL_PER_GRAM_FAT = 9;
+const KCAL_PER_GRAM_PROTEIN = 4;
+const KCAL_PER_GRAM_CARB = 4;
+
+export interface MacroGoals {
+  proteinGramsGoal: number;
+  carbGramsGoal: number;
+  fatGramsGoal: number;
+}
+
+// Quebra de macronutrientes (Spec 05, seção 5.2) — calculada junto com
+// dailyCalorieGoal, mesmos pré-requisitos (checados pelo chamador). Derivada
+// exclusivamente de objectiveCategory + peso + dailyCalorieGoal — nunca de
+// PrescriptionEntry (regra de segurança da seção 5.2).
+export function calculateMacroGoals(
+  dailyCalorieGoal: number,
+  weightKg: number,
+  objectiveCategory: ObjectiveCategory | null,
+): MacroGoals {
+  const proteinFactor = PROTEIN_FACTOR_G_PER_KG[objectiveCategory ?? "outro"];
+  const proteinGramsGoal = Math.round(weightKg * proteinFactor);
+
+  const fatCalories = dailyCalorieGoal * FAT_CALORIE_SHARE;
+  const fatGramsGoal = Math.round(fatCalories / KCAL_PER_GRAM_FAT);
+
+  const proteinCalories = proteinGramsGoal * KCAL_PER_GRAM_PROTEIN;
+  const remainingCalories = dailyCalorieGoal - proteinCalories - fatCalories;
+  const carbGramsGoal = Math.round(remainingCalories / KCAL_PER_GRAM_CARB);
+
+  return { proteinGramsGoal, carbGramsGoal, fatGramsGoal };
+}

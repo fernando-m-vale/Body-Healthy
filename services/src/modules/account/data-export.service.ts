@@ -33,7 +33,7 @@ export async function aggregateExportData(prisma: PrismaClient, keyProvider: Key
       prisma.prescriptionEntry.findMany({ where: { userId } }),
       prisma.healthCycle.findMany({
         where: { userId, status: "generated" },
-        include: { workoutPlan: { include: { exercises: true } }, feedbackEntries: true },
+        include: { workoutPlan: { include: { exercises: true } }, feedbackEntries: true, phases: true },
       }),
       prisma.weeklyCheckIn.findMany({ where: { userId } }),
       prisma.workoutExecutionLog.findMany({ where: { userId } }),

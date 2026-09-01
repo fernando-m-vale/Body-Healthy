@@ -67,6 +67,7 @@ async function executeAccountDeletion(
     prisma.workoutExercise.deleteMany({ where: { workoutPlan: { healthCycle: { userId } } } }),
     prisma.workoutPlan.deleteMany({ where: { healthCycle: { userId } } }),
     prisma.cycleFeedback.deleteMany({ where: { healthCycle: { userId } } }),
+    prisma.cyclePhase.deleteMany({ where: { healthCycle: { userId } } }),
     prisma.healthCycle.deleteMany({ where: { userId } }),
     prisma.weeklyCheckIn.deleteMany({ where: { userId } }),
     prisma.workoutExecutionLog.deleteMany({ where: { userId } }),

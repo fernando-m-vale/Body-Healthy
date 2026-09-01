@@ -4,6 +4,7 @@ import { decryptField } from "../../lib/field-encryption";
 import { logAccess } from "../../lib/audit-log";
 import {
   calculateDailyCalorieGoal,
+  calculateMacroGoals,
   calculateAgeYears,
   type ActivityLevel,
   type BiologicalSexForCalc,
@@ -33,7 +34,10 @@ export function createCycle(prisma: PrismaClient, userId: string, body: CreateCy
 export function getCycle(prisma: PrismaClient, userId: string, cycleId: string) {
   return prisma.healthCycle.findFirst({
     where: { id: cycleId, userId },
-    include: { workoutPlan: { include: { exercises: { orderBy: [{ dayLabel: "asc" }, { orderIndex: "asc" }] } } } },
+    include: {
+      workoutPlan: { include: { exercises: { orderBy: [{ dayLabel: "asc" }, { orderIndex: "asc" }] } } },
+      phases: { orderBy: { orderIndex: "asc" } },
+    },
   });
 }
 
@@ -73,6 +77,13 @@ interface AggregatedContext {
   aiContext: AIContext;
   redactedSnapshot: Record<string, unknown>;
   dailyCalorieGoal: number | null;
+  proteinGramsGoal: number | null;
+  carbGramsGoal: number | null;
+  fatGramsGoal: number | null;
+  // Nomes de exercício do ciclo gerado anterior, pra calcular isNew (seção
+  // 5.4) em código, nunca pela IA. null = não existe ciclo anterior gerado
+  // (isNew sempre false); Set (mesmo vazio) = existe ciclo anterior.
+  previousExerciseNames: Set<string> | null;
 }
 
 // Agregação de contexto (Spec 05, seção 5) — só dado confirmado/revisado
@@ -94,9 +105,13 @@ export async function aggregateContext(
     prisma.healthCycle.findFirst({
       where: { userId, status: "generated", id: { not: cycleId } },
       orderBy: { createdAt: "desc" },
-      select: { id: true },
+      select: { id: true, workoutPlan: { select: { exercises: { select: { exerciseName: true } } } } },
     }),
   ]);
+
+  const previousExerciseNames: Set<string> | null = previousCycle
+    ? new Set(previousCycle.workoutPlan?.exercises.map((e) => e.exerciseName) ?? [])
+    : null;
 
   // Taxa de adesão do ciclo anterior (Spec 06, seção 6 — RF18). Ignora
   // semanas sem check-in preenchido; exige 2+ check-ins pra entrar no
@@ -126,6 +141,9 @@ export async function aggregateContext(
   const mostRecentWeightEntry = [...bioimpedance].reverse().find((b) => b.weightKg !== null);
 
   let dailyCalorieGoal: number | null = null;
+  let proteinGramsGoal: number | null = null;
+  let carbGramsGoal: number | null = null;
+  let fatGramsGoal: number | null = null;
   let ageYears: number | null = null;
 
   if (profile?.birthDate) {
@@ -146,6 +164,15 @@ export async function aggregateContext(
       activityLevel: profile.activityLevel as ActivityLevel,
       objectiveCategory: objectiveCategory as ObjectiveCategory | null,
     });
+
+    const macros = calculateMacroGoals(
+      dailyCalorieGoal,
+      mostRecentWeightEntry.weightKg,
+      objectiveCategory as ObjectiveCategory | null,
+    );
+    proteinGramsGoal = macros.proteinGramsGoal;
+    carbGramsGoal = macros.carbGramsGoal;
+    fatGramsGoal = macros.fatGramsGoal;
   }
 
   const aiContext: AIContext = {
@@ -182,6 +209,9 @@ export async function aggregateContext(
         }
       : null,
     dailyCalorieGoal,
+    proteinGramsGoal,
+    carbGramsGoal,
+    fatGramsGoal,
     adherenceRate,
   };
 
@@ -195,10 +225,21 @@ export async function aggregateContext(
         : "nenhuma prescrição no contexto",
     profile: aiContext.profile,
     dailyCalorieGoal,
+    proteinGramsGoal,
+    carbGramsGoal,
+    fatGramsGoal,
     adherenceRate,
   };
 
-  return { aiContext, redactedSnapshot, dailyCalorieGoal };
+  return {
+    aiContext,
+    redactedSnapshot,
+    dailyCalorieGoal,
+    proteinGramsGoal,
+    carbGramsGoal,
+    fatGramsGoal,
+    previousExerciseNames,
+  };
 }
 
 export async function updateExercise(
@@ -226,6 +267,7 @@ export async function updateExercise(
         ...(body.reps !== undefined && { reps: body.reps }),
         ...(body.restSeconds !== undefined && { restSeconds: body.restSeconds }),
         ...(body.notes !== undefined && { notes: body.notes }),
+        ...(body.technique !== undefined && { technique: body.technique }),
       },
     }),
     prisma.workoutPlan.update({

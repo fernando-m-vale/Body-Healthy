@@ -1,5 +1,5 @@
 # Spec Técnica 05 — Declaração de Objetivo, Plano de Ação e Treino Personalizado
-**Metodologia:** SDD · **Status:** Rascunho v4 · **Data:** 27/08/2026
+**Metodologia:** SDD · **Status:** Rascunho v6 · **Data:** 31/08/2026
 **Cobre:** RF10, RF11, RF12, RF13, RF18 (aplicação), RF19 (campo de data), RF21 (PRD Fase 1) · **Depende de:** Specs 00, 01-04, 06 (fontes de dado e regras de agregação), Architecture Doc v3
 
 ---
@@ -21,8 +21,10 @@ As Specs 01-04 tratam de **ingestão** de dado — cada uma isolada. Esta spec �
 - Formulário de declaração de objetivo (RF10)
 - Agregação do dado disponível e confirmado do usuário como contexto, incluindo a regra de adesão do ciclo anterior definida na Spec 06 (RF18) e o perfil da Spec 00
 - Cálculo de meta calórica diária estimada (RF21), quando perfil e peso disponíveis
+- Quebra de macronutrientes (proteína, carboidrato, gordura) junto com a meta calórica
 - Geração via IA do plano de ação em linguagem simples (RF11), com degradação graciosa (RF04a)
-- Geração via IA do treino estruturado (RF12)
+- Geração via IA do treino estruturado (RF12), incluindo técnica de execução quando aplicável e sinalização de exercício novo em relação ao ciclo anterior
+- Periodização opcional do ciclo em fases (tempo de treino, nunca vinculada a protocolo médico)
 - Revisão/edição do treino pelo usuário antes de considerar o ciclo "pronto"
 - Caixa de feedback/crítica para o usuário debater o plano e o treino, disparando regeneração ajustada
 - Exibição em tela do treino completo e exportação em formato genérico (RF13), independente de app de terceiros
@@ -41,9 +43,15 @@ model HealthCycle {
   userId                 String
   objectiveText          String   // texto livre do objetivo — único campo obrigatório desta spec
   objectiveCategory       String?  // "massa_magra" | "perda_gordura" | "manutencao" | "outro"
+  weeklyTrainingDays     Int?     // quantas vezes por semana o usuário pretende treinar (RF10) —
+                                    // opcional (RF04a); quando ausente, a IA decide um número razoável
+                                    // com base em objectiveCategory e nível de atividade (Spec 00)
   status                 String   // "objective_set" | "generating" | "generated" | "failed"
   actionPlanText         String?  // plano de ação gerado (nutrição, treino, sono) em linguagem simples
   dailyCalorieGoal       Int?     // meta calórica estimada (RF21) — null se perfil/peso insuficientes
+  proteinGramsGoal       Int?     // meta de proteína diária (seção 5.2) — null nas mesmas condições do dailyCalorieGoal
+  carbGramsGoal          Int?     // meta de carboidrato diária (seção 5.2)
+  fatGramsGoal           Int?     // meta de gordura diária (seção 5.2)
   nextCycleExpectedDate  DateTime? // data esperada do próximo acompanhamento médico (RF19), informada pelo usuário
   contextSnapshot        Json?    // snapshot do contexto agregado, para auditoria/debug. REGRA DE
                                     // SEGURANÇA: prescrições (Spec 04) NUNCA aparecem aqui em texto
@@ -58,8 +66,23 @@ model HealthCycle {
 
   workoutPlan            WorkoutPlan?
   feedbackEntries        CycleFeedback[]
+  phases                 CyclePhase[]
 
   @@index([userId, createdAt])
+}
+
+model CyclePhase {
+  id            String   @id @default(cuid())
+  healthCycleId String
+  orderIndex    Int
+  phaseLabel    String   // ex.: "Semanas 1-4" — sempre relativo ao tempo do ciclo de treino,
+                          // nunca a início/fim de medicação (ver seção 5.3)
+  title         String   // ex.: "Volume"
+  focusText     String   // 1-2 frases explicando o foco da fase
+
+  healthCycle   HealthCycle @relation(fields: [healthCycleId], references: [id])
+
+  @@index([healthCycleId, orderIndex])
 }
 
 model CycleFeedback {
@@ -92,7 +115,12 @@ model WorkoutExercise {
   sets          Int
   reps          String   // texto livre, ex.: "8-12" ou "até a falha"
   restSeconds   Int?
-  notes         String?  // ex.: nota de progressão
+  notes         String?  // ex.: nota de progressão ou dica de execução
+  technique     String?  // ex.: "drop-set", "rest-pause", "superset", "bi-set" — texto livre,
+                          // sem vocabulário fechado (ver seção 5.4)
+  isNew         Boolean  @default(false) // true se este exercício não aparecia no WorkoutPlan
+                          // do ciclo confirmado anterior do mesmo usuário (mesmo nome de exercício,
+                          // qualquer dia) — calculado no momento da geração, seção 5.4
 
   workoutPlan   WorkoutPlan @relation(fields: [workoutPlanId], references: [id])
 
@@ -109,6 +137,7 @@ Antes de qualquer chamada à IA, o backend monta um `contextSnapshot` seguindo e
 - `BioimpedanceEntry`: todos os registros do usuário, com tendência calculada dinamicamente (Spec 03)
 - `PrescriptionEntry`: linha do tempo decifrada **apenas em memória, no momento da chamada à IA** — o texto decifrado nunca é gravado no banco, nem no `contextSnapshot` persistido nem em qualquer outro campo. A estrutura completa (com prescrição em texto plano) existe só como variável em memória durante a montagem do prompt; o que é persistido em `contextSnapshot` é uma versão com a parte de prescrições redigida (ver nota do model, seção 4). O prompt para a IA deve instruir explicitamente que este dado é contexto histórico, nunca base para sugestão de ajuste
 - `UserProfile` (Spec 00): altura, idade calculada da data de nascimento, sexo biológico para cálculo e nível de atividade, quando preenchidos
+- `weeklyTrainingDays` do próprio ciclo, quando informado — o prompt de geração deve instruir a IA a estruturar exatamente esse número de dias de treino (`dayLabel`s distintos). Se ausente, a IA decide um número razoável com base em `objectiveCategory` e `UserProfile.activityLevel`, sem perguntar de volta ao usuário
 - Taxa de adesão do ciclo anterior: aplicar a regra definida na Spec 06, seção 6 (só entra no contexto com 2+ check-ins no ciclo anterior)
 - `dailyCalorieGoal` deste ciclo (ver seção 5.1), quando calculável
 - Ausência de qualquer uma dessas fontes **não bloqueia a geração** (RF04a) — o prompt deve ser construído de forma que funcione com contexto mínimo (só `objectiveText`) até contexto completo
@@ -140,11 +169,39 @@ Ajuste conforme `objectiveCategory` do ciclo:
 
 **Disclaimer obrigatório:** todo lugar que exibe `dailyCalorieGoal` deve reforçar que é uma estimativa, não prescrição nutricional (RNF02) — mesmo padrão de "informação educacional" usado em todas as specs anteriores.
 
+### 5.2 Quebra de macronutrientes
+
+Calculada junto com `dailyCalorieGoal`, nos mesmos pré-requisitos e mesma limitação (`null` se os pré-requisitos da seção 5.1 não forem atendidos):
+
+- **Proteína:** peso(kg) × fator, conforme `objectiveCategory`:
+  - `perda_gordura`: 2.2 g/kg (mais alto, ajuda saciedade e preserva massa magra em déficit)
+  - `massa_magra`: 2.0 g/kg
+  - `manutencao` / `outro`: 1.8 g/kg
+  - `proteinGramsGoal` = arredondar o resultado
+- **Gordura:** 25% de `dailyCalorieGoal` em calorias, convertido para gramas (÷ 9 kcal/g)
+  - `fatGramsGoal` = arredondar o resultado
+- **Carboidrato:** o restante das calorias depois de proteína e gordura, convertido para gramas (÷ 4 kcal/g)
+  - `carbGramsGoal` = arredondar o resultado
+
+**Regra de segurança (reforço da seção 2):** esta quebra é derivada exclusivamente de `objectiveCategory` + peso + `dailyCalorieGoal` — nunca de `PrescriptionEntry`. O `actionPlanText` pode explicar o racional de cada macro (ex.: "proteína é prioridade porque ajuda a preservar massa magra durante o déficit"), mas nunca mencionar que algum medicamento afeta apetite, absorção ou qualquer outro mecanismo — isso seria interpretação clínica de fármaco, fora de escopo do produto (PRD, seção 6).
+
+### 5.3 Periodização em fases
+
+Opcional — a IA pode estruturar o treino do ciclo em fases progressivas dentro do período até o próximo ciclo (quando `nextCycleExpectedDate` estiver preenchida) ou usando uma duração padrão de referência (ex.: 12 semanas) quando não estiver. Persistido em `CyclePhase`, uma lista ordenada por `orderIndex`.
+
+**Regra de segurança não-negociável:** cada fase é definida **exclusivamente em relação ao tempo do ciclo de treino** (ex.: "Semanas 1-4: volume", "Semanas 9-12: definição") — nunca em relação a início, meio ou fim de qualquer item de `PrescriptionEntry`. O prompt de geração deve instruir explicitamente a IA a nunca escrever frases como "nesta fase, a medicação X está mais ativa" ou "encerrando o uso de Y" — mesmo que o contexto agregado (seção 5) contenha prescrições, a periodização não deve referenciá-las, nem indiretamente. A checagem automática de segurança (seção 9) deve cobrir também `CyclePhase.title`/`focusText`, não só `actionPlanText`.
+
+### 5.4 Técnica de exercício e sinalização de novidade
+
+- `WorkoutExercise.technique`: campo livre opcional, preenchido pela IA quando a execução do exercício usa uma técnica específica (ex.: "drop-set", "rest-pause", "superset", "bi-set", "excêntrico controlado"). Não é vocabulário fechado — a IA descreve a técnica com as próprias palavras quando fizer sentido; a maioria dos exercícios pode não ter nenhuma (campo `null`)
+- `WorkoutExercise.notes`: continua existindo para dica de execução geral (postura, amplitude, cadência) — `technique` é um campo mais específico para nomear a técnica, quando houver uma
+- `WorkoutExercise.isNew`: calculado no momento da geração, comparando `exerciseName` (correspondência exata) com todos os exercícios do `WorkoutPlan` do ciclo confirmado imediatamente anterior do mesmo usuário. Se o nome não aparecia lá, `isNew: true`. Sem ciclo anterior, todos os exercícios do primeiro ciclo têm `isNew: false` (não é "novo" se não há o que comparar) — mesmo princípio de "não inventar comparação com dado ausente" já usado no cálculo de tendência (Spec 01, Spec 03)
+
 ## 6. Fluxo técnico
 
-1. **Declaração de objetivo (RF10)** — usuário preenche `objectiveText` (livre) e opcionalmente escolhe `objectiveCategory` sugerida; pode também informar `nextCycleExpectedDate` (RF19), opcional; cria `HealthCycle` com `status: "objective_set"`
+1. **Declaração de objetivo (RF10)** — usuário preenche `objectiveText` (livre) e opcionalmente escolhe `objectiveCategory` sugerida e `weeklyTrainingDays` (quantas vezes por semana pretende treinar); pode também informar `nextCycleExpectedDate` (RF19), opcional; cria `HealthCycle` com `status: "objective_set"`
 2. **Agregação** — backend monta `contextSnapshot` seguindo as regras da seção 5, incluindo o cálculo de `dailyCalorieGoal` (seção 5.1) quando os pré-requisitos existirem
-3. **Geração (job assíncrono)** — `status: "generating"`; job envia `objectiveText` + `contextSnapshot` (já incluindo `dailyCalorieGoal`, se calculado) para a API da Anthropic em duas partes do mesmo prompt estruturado: (a) plano de ação em linguagem simples, (b) treino estruturado em JSON (dias, exercícios, séries, repetições, progressão)
+3. **Geração (job assíncrono)** — `status: "generating"`; job envia `objectiveText` + `contextSnapshot` (já incluindo `dailyCalorieGoal`/`proteinGramsGoal`/`carbGramsGoal`/`fatGramsGoal`, se calculados) para a API da Anthropic em um prompt estruturado pedindo: (a) plano de ação em linguagem simples, (b) treino estruturado em JSON (dias, exercícios, séries, repetições, progressão, técnica quando houver), (c) opcionalmente, fases de periodização (seção 5.3)
 4. **Resultado** — `actionPlanText` e `WorkoutPlan`/`WorkoutExercise` são persistidos; `status: "generated"`; usuário notificado (RNF04)
 5. **Revisão do treino** — usuário pode editar qualquer exercício gerado (nome, séries, reps, ordem) antes de exportar; qualquer edição marca `WorkoutPlan.userEdited: true`. O plano de ação em texto (nutrição/sono) não tem edição estruturada nesta spec — é conteúdo de leitura
 6. **Feedback e regeneração** — a qualquer momento após a geração, usuário pode escrever uma crítica ou pedido de ajuste livre (ex.: "não consigo fazer agachamento, tenho problema no joelho" ou "quero incluir treino de natação"). Isso cria um `CycleFeedback`; o sistema reenvia à IA o `objectiveText`, o `contextSnapshot` original, o `actionPlanText`/treino atuais e o texto do feedback, pedindo uma versão ajustada. O resultado **substitui** o plano e treino atuais (não há histórico de versões nesta spec, só o log de feedback em `CycleFeedback`); `triggeredRegeneration: true` é marcado nesse registro
@@ -173,7 +230,7 @@ O treino gerado deve estar sempre visível de forma completa dentro do próprio 
 
 - **Geração falha** — `status: "failed"`, usuário notificado, opção de tentar novamente
 - **Usuário sem nenhum dado além do objetivo** — plano genérico de qualidade ainda deve ser gerado (RF11); nunca retornar erro por "dado insuficiente"
-- **Prescrição vazando como sugestão no texto gerado** — se o `actionPlanText` gerado mencionar ajuste/dose/início/fim de medicação, isso é falha de prompt, não comportamento aceitável; validar com checagem automática simples (busca por padrões como "aumente a dose", "pare de tomar") antes de apresentar ao usuário, sinalizando para nova geração se detectado
+- **Prescrição vazando como sugestão no texto gerado** — se o `actionPlanText`, ou qualquer `CyclePhase.title`/`focusText` gerado mencionar ajuste/dose/início/fim de medicação, ou conectar uma fase/macro ao efeito de um medicamento, isso é falha de prompt, não comportamento aceitável; validar com checagem automática simples (busca por padrões como "aumente a dose", "pare de tomar", nome de categoria de medicação combinado com termos de ajuste) antes de apresentar ao usuário, sinalizando para nova geração se detectado
 - **Feedback vago ou contraditório** (ex.: "não gostei") — sistema ainda envia à IA, mas o prompt de regeneração deve instruir a IA a manter o que funcionava e ajustar apenas o que o feedback aponta; se o feedback não der sinal suficiente, resultado pode vir pouco diferente do anterior — isso é aceitável, não é erro de sistema
 - **Usuário envia múltiplos feedbacks em sequência rápida** — cada regeneração deve concluir (ou falhar) antes da próxima ser aceita; `status: "generating"` bloqueia novo `POST /cycles/:id/feedback` até resolver
 - **Cálculo de meta calórica resulta em valor extremo** (ex.: perfil com dado digitado errado gerando TDEE muito baixo/alto) — não há validação de sanidade específica nesta spec além da já existente no perfil (Spec 00) e na bioimpedância (Spec 03); se o valor calculado parecer implausível, é sintoma de dado de entrada errado, não uma decisão desta spec corrigir automaticamente
@@ -181,6 +238,8 @@ O treino gerado deve estar sempre visível de forma completa dentro do próprio 
 ## 10. Critérios de aceite
 
 - [ ] Usuário consegue gerar plano e treino preenchendo apenas o objetivo, sem nenhum outro dado
+- [ ] Quando `weeklyTrainingDays` é informado, o treino gerado tem exatamente esse número de dias distintos
+- [ ] Quando `weeklyTrainingDays` não é informado, a geração não bloqueia nem pergunta de volta — a IA decide um número razoável
 - [ ] Plano gerado reflete dado disponível quando existe (ex.: menção a tendência de bioimpedância, se houver)
 - [ ] Nenhum trecho do plano gerado sugere ajuste, dose, início ou fim de medicação/hormônio
 - [ ] `contextSnapshot` persistido no banco nunca contém nome/nota de prescrição em texto plano, nem parcial — verificável por dump direto da tabela `HealthCycle` (mesmo padrão de verificação já usado na Spec 04)
@@ -189,7 +248,10 @@ O treino gerado deve estar sempre visível de forma completa dentro do próprio 
 - [ ] Treino completo está sempre visível em tela, independente de o usuário exportar ou não
 - [ ] Exportação gera arquivo genérico, sem qualquer referência a um app de treino específico
 - [ ] Meta calórica é calculada quando perfil e peso disponíveis, e fica `null` sem erro quando não estão
-- [ ] Toda exibição de meta calórica traz o reforço de que é estimativa, não prescrição nutricional
+- [ ] Quebra de macronutrientes (proteína/carboidrato/gordura) é calculada junto com a meta calórica, mesma condição de disponibilidade
+- [ ] Toda exibição de meta calórica ou macro traz o reforço de que é estimativa, não prescrição nutricional
+- [ ] Nenhuma fase de periodização (`CyclePhase`) referencia início, meio ou fim de item de prescrição, direta ou indiretamente
+- [ ] Exercício sem correspondência no ciclo anterior é marcado `isNew: true`; sem ciclo anterior, nenhum exercício é marcado como novo
 - [ ] Usuário consegue informar a data esperada do próximo ciclo de exames
 
 ## 11. Fora de escopo desta spec
@@ -198,6 +260,9 @@ O treino gerado deve estar sempre visível de forma completa dentro do próprio 
 - Histórico de versões do plano/treino (cada regeneração por feedback substitui a anterior; só o texto do feedback fica registrado em `CycleFeedback`)
 - Acompanhamento nativo de treino dentro do produto (mencionado na seção 7 como ideia futura, não é requisito desta spec)
 - Ajuste fino dos valores de déficit/superávit calórico (500/350 kcal) — valores de referência geral, sujeitos a validação/calibração na implementação
+- Ajuste fino dos fatores de proteína (1.8/2.0/2.2 g/kg) e do percentual de gordura (25%) — mesma natureza, valores de referência geral
+- Vocabulário fechado/enum para `technique` — texto livre por design (seção 5.4)
+- Qualquer periodização ou conteúdo gerado que referencie protocolo médico/hormonal por nome — permanentemente fora de escopo do produto inteiro (PRD, seção 6), não apenas desta spec
 
 ---
 *Próxima spec sugerida: 06 — Check-in semanal e fechamento do loop de engajamento (RF16-19), que fecha a lacuna de retenção entre ciclos de 3 meses.*

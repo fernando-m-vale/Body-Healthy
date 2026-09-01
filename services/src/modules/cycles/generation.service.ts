@@ -15,7 +15,9 @@ Regras obrigatórias, sem exceção:
 - Funcione com qualquer nível de contexto — se só houver o objetivo declarado, gere um plano genérico de boa qualidade mesmo assim, incluindo workoutDays estruturado. Nunca recuse por "dado insuficiente".
 - Se dado de bioimpedância ou exame estiver disponível, use tendências (subindo/descendo/estável) para personalizar o plano quando fizer sentido.
 - Se a meta calórica foi calculada com base biológica ambígua (sexo "prefiro_nao_informar"), mencione no plano que a estimativa calórica é menos precisa nesse caso.
-- Se \`adherenceRate\` (taxa de adesão ao treino do ciclo anterior, 0 a 1) estiver presente no contexto, use-a APENAS para calibrar volume/intensidade do novo treino (ex.: adesão baixa → considere um plano mais simples/curto desta vez). Nunca trate isso como julgamento sobre o usuário, nunca mencione a taxa como cobrança ou crítica — é só um ajuste técnico de dificuldade.`;
+- Se \`adherenceRate\` (taxa de adesão ao treino do ciclo anterior, 0 a 1) estiver presente no contexto, use-a APENAS para calibrar volume/intensidade do novo treino (ex.: adesão baixa → considere um plano mais simples/curto desta vez). Nunca trate isso como julgamento sobre o usuário, nunca mencione a taxa como cobrança ou crítica — é só um ajuste técnico de dificuldade.
+- Cada exercício pode opcionalmente ter um campo \`technique\` (texto livre, ex.: "drop-set", "rest-pause", "superset", "bi-set") quando uma técnica específica de execução fizer sentido para aquele exercício — deixe null na maioria dos casos.
+- \`phases\` é OPCIONAL: só inclua uma periodização do treino em fases progressivas quando isso fizer sentido para o ciclo. REGRA NÃO NEGOCIÁVEL: cada fase (phaseLabel, title, focusText) é definida EXCLUSIVAMENTE em relação ao tempo do próprio ciclo de treino (ex.: "Semanas 1-4") — NUNCA em relação a início, fim, duração ou efeito de qualquer prescrição, medicação, hormônio ou suplemento, mesmo que o contexto agregado contenha prescrições. Nunca escreva frases como "nesta fase, a medicação X está mais ativa" ou "encerrando o uso de Y". Se não houver como descrever uma fase sem tocar em prescrição, omita \`phases\` inteiramente.`;
 
 function formatContext(context: AIContext): string {
   return JSON.stringify(context, null, 2);
@@ -35,8 +37,14 @@ function buildRegenerationPrompt(
   context: AIContext,
   currentActionPlanText: string,
   currentWorkoutDays: GenerationResult["workoutDays"],
+  currentPhases: GenerationResult["phases"],
   feedbackText: string,
 ): string {
+  const currentPhasesBlock =
+    currentPhases && currentPhases.length > 0
+      ? `\n\nFases atuais (JSON):\n${JSON.stringify(currentPhases, null, 2)}`
+      : "";
+
   return `Objetivo declarado pelo usuário para este ciclo: "${objectiveText}"
 
 Contexto de saúde disponível (JSON):
@@ -46,12 +54,12 @@ Plano de ação atual:
 ${currentActionPlanText}
 
 Treino atual (JSON):
-${JSON.stringify(currentWorkoutDays, null, 2)}
+${JSON.stringify(currentWorkoutDays, null, 2)}${currentPhasesBlock}
 
 O usuário enviou o seguinte feedback/crítica sobre o plano e/ou treino atuais:
 "${feedbackText}"
 
-Gere uma versão ajustada do plano de ação e do treino, mantendo o que já funcionava e ajustando especificamente o que o feedback aponta. Se o feedback não der sinal suficiente para uma mudança clara, é aceitável que o resultado fique parecido com o atual.`;
+Gere uma versão ajustada do plano de ação e do treino (e das fases, se houver), mantendo o que já funcionava e ajustando especificamente o que o feedback aponta. Se o feedback não der sinal suficiente para uma mudança clara, é aceitável que o resultado fique parecido com o atual.`;
 }
 
 async function callGeneration(userPrompt: string): Promise<GenerationResult> {
@@ -79,9 +87,17 @@ export function regeneratePlan(
   context: AIContext,
   currentActionPlanText: string,
   currentWorkoutDays: GenerationResult["workoutDays"],
+  currentPhases: GenerationResult["phases"],
   feedbackText: string,
 ): Promise<GenerationResult> {
   return callGeneration(
-    buildRegenerationPrompt(objectiveText, context, currentActionPlanText, currentWorkoutDays, feedbackText),
+    buildRegenerationPrompt(
+      objectiveText,
+      context,
+      currentActionPlanText,
+      currentWorkoutDays,
+      currentPhases,
+      feedbackText,
+    ),
   );
 }

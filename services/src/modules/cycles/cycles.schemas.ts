@@ -19,6 +19,7 @@ export const updateExerciseBodySchema = z.object({
   reps: z.string().min(1).optional(),
   restSeconds: z.number().int().nullable().optional(),
   notes: z.string().nullable().optional(),
+  technique: z.string().nullable().optional(),
 });
 export type UpdateExerciseBody = z.infer<typeof updateExerciseBodySchema>;
 
@@ -42,6 +43,8 @@ export const exerciseSchema = z.object({
   reps: z.string(),
   restSeconds: z.number().nullable(),
   notes: z.string().nullable(),
+  technique: z.string().nullable(),
+  isNew: z.boolean(),
 });
 
 const workoutPlanSchema = z.object({
@@ -50,12 +53,23 @@ const workoutPlanSchema = z.object({
   exercises: z.array(exerciseSchema),
 });
 
+export const phaseSchema = z.object({
+  id: z.string(),
+  orderIndex: z.number(),
+  phaseLabel: z.string(),
+  title: z.string(),
+  focusText: z.string(),
+});
+
 export const cycleSummarySchema = z.object({
   id: z.string(),
   objectiveText: z.string(),
   objectiveCategory: z.string().nullable(),
   status: z.string(),
   dailyCalorieGoal: z.number().nullable(),
+  proteinGramsGoal: z.number().nullable(),
+  carbGramsGoal: z.number().nullable(),
+  fatGramsGoal: z.number().nullable(),
   nextCycleExpectedDate: z.date().nullable(),
   createdAt: z.date(),
   generatedAt: z.date().nullable(),
@@ -64,6 +78,7 @@ export const cycleSummarySchema = z.object({
 export const cycleDetailSchema = cycleSummarySchema.extend({
   actionPlanText: z.string().nullable(),
   workoutPlan: workoutPlanSchema.nullable(),
+  phases: z.array(phaseSchema),
 });
 
 export const feedbackResponseSchema = z.object({

@@ -9,6 +9,7 @@ interface ExportableExercise {
   reps: string;
   restSeconds: number | null;
   notes: string | null;
+  technique: string | null;
 }
 
 function csvEscape(value: string): string {
@@ -16,6 +17,18 @@ function csvEscape(value: string): string {
     return `"${value.replace(/"/g, '""')}"`;
   }
   return value;
+}
+
+// technique não tem coluna própria — embutido na Observações já livre,
+// sugestão do usuário no planejamento desta tarefa (não obrigatório).
+function formatObservacoes(e: ExportableExercise): string {
+  if (e.notes && e.technique) {
+    return `${e.notes} (técnica: ${e.technique})`;
+  }
+  if (e.technique) {
+    return `Técnica: ${e.technique}`;
+  }
+  return e.notes ?? "";
 }
 
 export function buildWorkoutCsv(exercises: ExportableExercise[]): string {
@@ -28,7 +41,7 @@ export function buildWorkoutCsv(exercises: ExportableExercise[]): string {
       String(e.sets),
       e.reps,
       e.restSeconds != null ? String(e.restSeconds) : "",
-      e.notes ?? "",
+      formatObservacoes(e),
     ]
       .map(csvEscape)
       .join(","),

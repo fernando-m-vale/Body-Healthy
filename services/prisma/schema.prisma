@@ -171,6 +171,9 @@ model HealthCycle {
   status                String // "objective_set" | "generating" | "generated" | "failed"
   actionPlanText        String? // plano de ação gerado (nutrição, treino, sono) em linguagem simples
   dailyCalorieGoal      Int? // meta calórica estimada (RF21) — null se perfil/peso insuficientes
+  proteinGramsGoal      Int? // meta de proteína diária (seção 5.2) — null nas mesmas condições do dailyCalorieGoal
+  carbGramsGoal         Int? // meta de carboidrato diária (seção 5.2)
+  fatGramsGoal          Int? // meta de gordura diária (seção 5.2)
   nextCycleExpectedDate DateTime? // data esperada do próximo acompanhamento médico (RF19), informada pelo usuário
   contextSnapshot       Json? // snapshot do contexto agregado, para auditoria/debug. REGRA DE
   // SEGURANÇA: prescrições (Spec 04) NUNCA aparecem aqui em texto
@@ -185,8 +188,23 @@ model HealthCycle {
 
   workoutPlan     WorkoutPlan?
   feedbackEntries CycleFeedback[]
+  phases          CyclePhase[]
 
   @@index([userId, createdAt])
+}
+
+model CyclePhase {
+  id            String @id @default(cuid())
+  healthCycleId String
+  orderIndex    Int
+  phaseLabel    String // ex.: "Semanas 1-4" — sempre relativo ao tempo do ciclo de treino,
+  // nunca a início/fim de medicação (ver seção 5.3)
+  title     String // ex.: "Volume"
+  focusText String // 1-2 frases explicando o foco da fase
+
+  healthCycle HealthCycle @relation(fields: [healthCycleId], references: [id])
+
+  @@index([healthCycleId, orderIndex])
 }
 
 model CycleFeedback {
@@ -219,7 +237,12 @@ model WorkoutExercise {
   sets          Int
   reps          String // texto livre, ex.: "8-12" ou "até a falha"
   restSeconds   Int?
-  notes         String? // ex.: nota de progressão
+  notes         String? // ex.: nota de progressão ou dica de execução
+  technique     String? // ex.: "drop-set", "rest-pause", "superset", "bi-set" — texto livre,
+  // sem vocabulário fechado (ver seção 5.4)
+  isNew Boolean @default(false) // true se este exercício não aparecia no WorkoutPlan
+  // do ciclo confirmado anterior do mesmo usuário (mesmo nome de exercício,
+  // qualquer dia) — calculado no momento da geração, seção 5.4
 
   workoutPlan WorkoutPlan @relation(fields: [workoutPlanId], references: [id])
 

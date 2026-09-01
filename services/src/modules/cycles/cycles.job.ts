@@ -11,6 +11,11 @@ import type { GenerationResult } from "./generation.schema";
 // loop infinito se a IA insistir em linguagem de ajuste de medicação.
 const MAX_SAFETY_ATTEMPTS = 2;
 
+function textsToCheck(result: GenerationResult): string[] {
+  const phaseTexts = (result.phases ?? []).flatMap((phase) => [phase.title, phase.focusText]);
+  return [result.actionPlanText, ...phaseTexts];
+}
+
 async function generateWithSafetyCheck(
   attempt: (attemptNumber: number) => Promise<GenerationResult>,
   logger: FastifyBaseLogger,
@@ -18,7 +23,7 @@ async function generateWithSafetyCheck(
 ): Promise<GenerationResult | null> {
   for (let i = 1; i <= MAX_SAFETY_ATTEMPTS; i++) {
     const result = await attempt(i);
-    if (!containsMedicationAdjustmentLanguage(result.actionPlanText)) {
+    if (!containsMedicationAdjustmentLanguage(textsToCheck(result))) {
       return result;
     }
     logger.warn(
@@ -29,16 +34,25 @@ async function generateWithSafetyCheck(
   return null;
 }
 
+interface PersistGoals {
+  dailyCalorieGoal: number | null;
+  proteinGramsGoal: number | null;
+  carbGramsGoal: number | null;
+  fatGramsGoal: number | null;
+}
+
 async function persistResult(
   prisma: PrismaClient,
   cycleId: string,
   result: GenerationResult,
-  dailyCalorieGoal: number | null,
+  goals: PersistGoals,
   contextSnapshot: Record<string, unknown>,
+  previousExerciseNames: Set<string> | null,
 ): Promise<void> {
   await prisma.$transaction(async (tx) => {
     await tx.workoutExercise.deleteMany({ where: { workoutPlan: { healthCycleId: cycleId } } });
     await tx.workoutPlan.deleteMany({ where: { healthCycleId: cycleId } });
+    await tx.cyclePhase.deleteMany({ where: { healthCycleId: cycleId } });
 
     await tx.workoutPlan.create({
       data: {
@@ -54,18 +68,38 @@ async function persistResult(
               reps: exercise.reps,
               restSeconds: exercise.restSeconds,
               notes: exercise.notes,
+              technique: exercise.technique,
+              // isNew (Spec 05, seção 5.4) — SEMPRE calculado em código, nunca
+              // pela IA. Sem ciclo anterior gerado (previousExerciseNames ===
+              // null), nunca true.
+              isNew: previousExerciseNames != null && !previousExerciseNames.has(exercise.exerciseName),
             })),
           ),
         },
       },
     });
 
+    if (result.phases && result.phases.length > 0) {
+      await tx.cyclePhase.createMany({
+        data: result.phases.map((phase) => ({
+          healthCycleId: cycleId,
+          orderIndex: phase.orderIndex,
+          phaseLabel: phase.phaseLabel,
+          title: phase.title,
+          focusText: phase.focusText,
+        })),
+      });
+    }
+
     await tx.healthCycle.update({
       where: { id: cycleId },
       data: {
         status: "generated",
         actionPlanText: result.actionPlanText,
-        dailyCalorieGoal,
+        dailyCalorieGoal: goals.dailyCalorieGoal,
+        proteinGramsGoal: goals.proteinGramsGoal,
+        carbGramsGoal: goals.carbGramsGoal,
+        fatGramsGoal: goals.fatGramsGoal,
         contextSnapshot: contextSnapshot as Prisma.InputJsonValue,
         generatedAt: new Date(),
       },
@@ -86,13 +120,8 @@ export async function runGenerationJob(
     const cycle = await prisma.healthCycle.findUniqueOrThrow({ where: { id: cycleId } });
     await prisma.healthCycle.update({ where: { id: cycleId }, data: { status: "generating" } });
 
-    const { aiContext, redactedSnapshot, dailyCalorieGoal } = await aggregateContext(
-      prisma,
-      keyProvider,
-      userId,
-      cycle.objectiveCategory,
-      cycleId,
-    );
+    const { aiContext, redactedSnapshot, dailyCalorieGoal, proteinGramsGoal, carbGramsGoal, fatGramsGoal, previousExerciseNames } =
+      await aggregateContext(prisma, keyProvider, userId, cycle.objectiveCategory, cycleId);
 
     const result = await generateWithSafetyCheck(
       () => generatePlan(cycle.objectiveText, aiContext),
@@ -105,7 +134,14 @@ export async function runGenerationJob(
       return;
     }
 
-    await persistResult(prisma, cycleId, result, dailyCalorieGoal, redactedSnapshot);
+    await persistResult(
+      prisma,
+      cycleId,
+      result,
+      { dailyCalorieGoal, proteinGramsGoal, carbGramsGoal, fatGramsGoal },
+      redactedSnapshot,
+      previousExerciseNames,
+    );
   } catch (err) {
     logger.error({ err, cycleId }, "Falha na geração de plano/treino");
     await prisma.healthCycle.update({ where: { id: cycleId }, data: { status: "failed" } }).catch((updateErr) => {
@@ -130,16 +166,11 @@ export async function runRegenerationJob(
   try {
     const cycle = await prisma.healthCycle.findUniqueOrThrow({
       where: { id: cycleId },
-      include: { workoutPlan: { include: { exercises: true } } },
+      include: { workoutPlan: { include: { exercises: true } }, phases: { orderBy: { orderIndex: "asc" } } },
     });
 
-    const { aiContext, redactedSnapshot, dailyCalorieGoal } = await aggregateContext(
-      prisma,
-      keyProvider,
-      userId,
-      cycle.objectiveCategory,
-      cycleId,
-    );
+    const { aiContext, redactedSnapshot, dailyCalorieGoal, proteinGramsGoal, carbGramsGoal, fatGramsGoal, previousExerciseNames } =
+      await aggregateContext(prisma, keyProvider, userId, cycle.objectiveCategory, cycleId);
 
     const currentWorkoutDays: GenerationResult["workoutDays"] = [];
     for (const exercise of cycle.workoutPlan?.exercises ?? []) {
@@ -155,8 +186,16 @@ export async function runRegenerationJob(
         reps: exercise.reps,
         restSeconds: exercise.restSeconds,
         notes: exercise.notes,
+        technique: exercise.technique,
       });
     }
+
+    const currentPhases: GenerationResult["phases"] = cycle.phases.map((phase) => ({
+      orderIndex: phase.orderIndex,
+      phaseLabel: phase.phaseLabel,
+      title: phase.title,
+      focusText: phase.focusText,
+    }));
 
     const result = await generateWithSafetyCheck(
       () =>
@@ -165,6 +204,7 @@ export async function runRegenerationJob(
           aiContext,
           cycle.actionPlanText ?? "",
           currentWorkoutDays,
+          currentPhases,
           feedbackText,
         ),
       logger,
@@ -176,7 +216,14 @@ export async function runRegenerationJob(
       return;
     }
 
-    await persistResult(prisma, cycleId, result, dailyCalorieGoal, redactedSnapshot);
+    await persistResult(
+      prisma,
+      cycleId,
+      result,
+      { dailyCalorieGoal, proteinGramsGoal, carbGramsGoal, fatGramsGoal },
+      redactedSnapshot,
+      previousExerciseNames,
+    );
   } catch (err) {
     logger.error({ err, cycleId }, "Falha na regeneração de plano/treino");
     await prisma.healthCycle.update({ where: { id: cycleId }, data: { status: "failed" } }).catch((updateErr) => {
