@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Body Healthy — Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12181F;
+    --base:#FFFFFF;
+    --vital:#0EA97A;
+    --vital-dark:#085041;
+    --pulse:#FF5D3A;
+    --pulse-dark:#8A2E17;
+    --mist:#F1F5F3;
+    --line:#DDE3E0;
+    --muted:#6B7570;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#EDEDE8;
+    font-family:var(--font-body);
+    padding:40px 24px;
+  }
+  .gallery{
+    display:flex;
+    flex-wrap:wrap;
+    gap:32px;
+    justify-content:center;
+  }
+  .frame{
+    width:320px;
+    height:693px;
+    background:var(--base);
+    border-radius:36px;
+    border:1px solid #00000012;
+    box-shadow:0 24px 48px -12px rgba(18,24,31,0.18);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .statusbar{
+    height:44px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13px;
+    color:var(--ink);
+  }
+  .screen{
+    flex:1;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .label{
+    text-align:center;
+    font-family:var(--font-body);
+    font-size:13px;
+    color:#8A8F8A;
+    margin-top:14px;
+    margin-bottom:0;
+    width:320px;
+  }
+
+  /* ---- Screen 1: Onboarding ---- */
+  .s1{ padding:8px 26px 28px; justify-content:space-between; }
+  .wordmark{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:15px;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .s1-hero{ margin-top:36px; }
+  .s1-hero h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:34px;
+    line-height:1.12;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    margin:0 0 14px;
+  }
+  .s1-hero p{
+    font-size:15px;
+    line-height:1.55;
+    color:var(--muted);
+    margin:0;
+    max-width:240px;
+  }
+  .pulse-card{
+    margin-top:28px;
+    background:var(--mist);
+    border-radius:20px;
+    padding:22px 20px;
+    height:130px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .btn-primary{
+    width:100%;
+    background:var(--vital);
+    color:#fff;
+    border:none;
+    border-radius:100px;
+    padding:16px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:15px;
+    cursor:pointer;
+  }
+  .btn-link{
+    text-align:center;
+    margin-top:14px;
+    font-size:14px;
+    color:var(--muted);
+    font-weight:500;
+  }
+
+  /* ---- Screen 2: Confirmação de exame ---- */
+  .s2-top{
+    padding:6px 20px 16px;
+    border-bottom:1px solid var(--line);
+  }
+  .s2-back{ font-size:20px; color:var(--ink); margin-bottom:14px; }
+  .s2-top h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:22px;
+    color:var(--ink);
+    margin:0 0 4px;
+  }
+  .s2-top p{ font-size:13px; color:var(--muted); margin:0; }
+  .marker-list{ flex:1; overflow-y:auto; padding:6px 20px; }
+  .marker-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .marker-name{ font-size:14px; font-weight:500; color:var(--ink); }
+  .marker-ref{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .marker-right{ text-align:right; display:flex; align-items:center; gap:8px; }
+  .marker-value{ font-family:var(--font-body); font-weight:600; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .dot-vital{ background:var(--vital); }
+  .dot-pulse{ background:var(--pulse); }
+  .dot-mid{ background:#C7CCC9; }
+  .s2-bottom{ padding:16px 20px 24px; border-top:1px solid var(--line); }
+
+  /* ---- Screen 3: Dashboard ---- */
+  .s3{ padding:0; }
+  .s3-scroll{ flex:1; overflow-y:auto; padding:6px 22px 90px; }
+  .s3-greet{ font-family:var(--font-body); font-size:14px; color:var(--muted); margin:8px 0 2px; }
+  .s3-name{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 20px; }
+  .hero-card{
+    background:var(--ink);
+    border-radius:20px;
+    padding:22px 22px 20px;
+    color:#fff;
+    margin-bottom:14px;
+  }
+  .hero-num{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:44px;
+    letter-spacing:-0.01em;
+    line-height:1;
+    color:var(--pulse);
+  }
+  .hero-label{ font-size:13px; color:#B7C4BE; margin-top:6px; }
+  .mini-row{ display:flex; gap:12px; margin-bottom:20px; }
+  .mini-card{
+    flex:1;
+    background:var(--mist);
+    border-radius:16px;
+    padding:16px;
+  }
+  .mini-num{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--vital-dark); }
+  .mini-label{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .badge-new{
+    display:inline-block;
+    background:var(--pulse);
+    color:#fff;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:10px;
+    letter-spacing:0.02em;
+    padding:2px 7px;
+    border-radius:100px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+
+  /* ---- Screen 5: Calorias ---- */
+  .s5{ padding:0; }
+  .s5-scroll{ flex:1; overflow-y:auto; padding:6px 22px 24px; }
+  .s5-top{ font-size:13px; color:var(--muted); margin:8px 0 18px; }
+  .cal-card{
+    background:var(--pulse);
+    border-radius:20px;
+    padding:22px 22px 20px;
+    color:#fff;
+    margin-bottom:18px;
+  }
+  .cal-num{ font-family:var(--font-display); font-weight:700; font-size:38px; letter-spacing:-0.01em; }
+  .cal-of{ font-size:13px; color:#FFE1D6; margin-top:2px; }
+  .cal-bar-track{ height:6px; background:rgba(255,255,255,0.32); border-radius:100px; margin-top:16px; overflow:hidden; }
+  .cal-bar-fill{ height:100%; width:65%; background:#fff; border-radius:100px; }
+  .cal-remaining{ font-size:12px; color:#FFE1D6; margin-top:10px; }
+  .add-btn{
+    width:100%;
+    border:1.5px dashed var(--line);
+    background:#fff;
+    border-radius:14px;
+    padding:14px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    color:var(--pulse-dark);
+    margin-bottom:18px;
+  }
+  .meal-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .meal-name{ font-size:14px; font-weight:500; color:var(--ink); }
+  .meal-time{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .meal-kcal{ font-family:var(--font-body); font-weight:600; font-size:14px; color:var(--ink); }
+  .s5-disclaimer{ font-size:11px; color:var(--muted); line-height:1.5; margin-top:18px; }
+
+  /* ---- Screen 6: Consentimento LGPD ---- */
+  .s6{ padding:28px 26px 24px; justify-content:space-between; }
+  .s6-tag{
+    display:inline-block;
+    font-size:11px;
+    font-weight:600;
+    color:var(--pulse-dark);
+    background:#FFEAE3;
+    padding:4px 10px;
+    border-radius:100px;
+    margin-bottom:16px;
+  }
+  .s6 h2{ font-family:var(--font-display); font-weight:600; font-size:24px; color:var(--ink); margin:0 0 14px; line-height:1.2; }
+  .s6-body{ font-size:14px; line-height:1.65; color:var(--muted); }
+  .s6-body p{ margin:0 0 14px; }
+  .s6-body b{ color:var(--ink); font-weight:600; }
+  .s6-foot{ font-size:12px; color:var(--muted); text-align:center; margin-top:12px; }
+
+  /* ---- Screen 7: Declaração de objetivo ---- */
+  .s7{ padding:26px 24px 24px; justify-content:space-between; }
+  .s7 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 18px; }
+  .s7-textarea{
+    width:100%; height:88px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    font-family:var(--font-body);
+    font-size:14px;
+    color:var(--ink);
+    resize:none;
+    margin-bottom:20px;
+  }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+  .chip{
+    padding:9px 14px;
+    border-radius:100px;
+    font-size:13px;
+    font-weight:500;
+    border:1px solid var(--line);
+    color:var(--muted);
+  }
+  .chip.active{ background:var(--vital); border-color:var(--vital); color:#fff; }
+  .field-label{ font-size:12px; font-weight:600; color:var(--ink); margin-bottom:8px; }
+  .date-field{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:14px;
+    color:var(--muted);
+    margin-bottom:24px;
+  }
+
+  /* ---- Screen 8: Plano de ação gerado ---- */
+  .s8-top{ padding:22px 22px 10px; }
+  .s8-eyebrow{ font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .s8-top h2{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--ink); margin:0; }
+  .s8-scroll{ flex:1; overflow-y:auto; padding:12px 22px 22px; }
+  .macro-row{ display:flex; gap:8px; margin-bottom:20px; }
+  .macro-card{ flex:1; background:var(--mist); border-radius:14px; padding:12px 10px; text-align:center; }
+  .macro-card.p{ background:#FFEAE3; }
+  .macro-v{ font-family:var(--font-display); font-weight:600; font-size:17px; color:var(--ink); }
+  .macro-l{ font-size:10.5px; color:var(--muted); margin-top:2px; }
+  .phase-chips{ display:flex; gap:6px; margin-bottom:20px; overflow-x:auto; }
+  .phase-chip{
+    flex-shrink:0;
+    background:var(--mist);
+    border-radius:12px;
+    padding:8px 12px;
+    font-size:11.5px;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .phase-chip .w{ display:block; font-size:10px; color:var(--muted); font-weight:400; margin-bottom:2px; }
+  .s8-prose{ font-size:13.5px; line-height:1.7; color:var(--ink); margin-bottom:6px; }
+  .s8-prose + .s8-prose{ margin-top:12px; }
+
+  /* ---- Screen 9: Check-in semanal ---- */
+  .s9{ padding:26px 24px 24px; justify-content:space-between; }
+  .s9 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 4px; }
+  .s9-sub{ font-size:13px; color:var(--muted); margin-bottom:24px; }
+  .field-group{ margin-bottom:22px; }
+  .weight-input{
+    display:flex; align-items:baseline; gap:6px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+  }
+  .weight-input input{
+    border:none; outline:none; font-family:var(--font-display);
+    font-size:20px; font-weight:600; color:var(--ink); width:70px;
+  }
+  .weight-input span{ font-size:13px; color:var(--muted); }
+  .seg{ display:flex; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .seg-opt{ flex:1; text-align:center; padding:11px 4px; font-size:12.5px; font-weight:500; color:var(--muted); border-right:1px solid var(--line); }
+  .seg-opt:last-child{ border-right:none; }
+  .seg-opt.active{ background:var(--vital); color:#fff; }
+  .scale-row{ display:flex; gap:8px; }
+  .scale-dot{
+    flex:1; aspect-ratio:1; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--mist); font-family:var(--font-display); font-weight:600; font-size:14px; color:var(--muted);
+  }
+  .scale-dot.active{ background:var(--pulse); color:#fff; }
+
+  /* ---- Screen 10: Perfil básico ---- */
+  .s10{ padding:26px 24px 24px; }
+  .s10 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 4px; }
+  .s10-sub{ font-size:13px; color:var(--muted); margin-bottom:22px; }
+  .s10-scroll{ flex:1; overflow-y:auto; }
+  .note-text{ font-size:11.5px; color:var(--muted); line-height:1.5; margin-top:8px; margin-bottom:22px; }
+  .s10-bottom{ padding-top:14px; }
+
+  /* ---- Screen 11: Upload de exame ---- */
+  .s11{ padding:26px 24px 24px; justify-content:space-between; }
+  .s11 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 16px; }
+  .info-box{
+    background:var(--mist);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:12.5px;
+    line-height:1.6;
+    color:var(--muted);
+    margin-bottom:20px;
+  }
+  .info-box b{ color:var(--ink); font-weight:600; }
+  .dropzone{
+    border:1.5px dashed var(--line);
+    border-radius:18px;
+    padding:38px 20px;
+    text-align:center;
+    color:var(--muted);
+  }
+  .dropzone-icon{
+    width:44px; height:44px; border-radius:50%;
+    background:var(--mist);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 14px;
+    font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--vital);
+  }
+  .dropzone-title{ font-size:14px; font-weight:600; color:var(--ink); margin-bottom:4px; }
+  .dropzone-sub{ font-size:12px; color:var(--muted); }
+  .s11-formats{ font-size:11.5px; color:var(--muted); text-align:center; margin-top:14px; }
+
+  /* ---- Screen 12: Bioimpedância ---- */
+  .s12{ padding:26px 24px 24px; justify-content:space-between; }
+  .s12 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 20px; }
+  .s12-scroll{ flex:1; overflow-y:auto; }
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field-group{ flex:1; }
+  .last-measure{
+    background:var(--mist);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+    margin-bottom:22px;
+  }
+  .last-measure b{ color:var(--ink); font-weight:600; }
+
+  /* ---- Screen 13: Prescrições ---- */
+  .s13-top{ display:flex; justify-content:space-between; align-items:center; padding:22px 22px 4px; }
+  .s13-top h2{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--ink); margin:0; }
+  .add-fab{
+    width:34px; height:34px; border-radius:50%;
+    background:var(--vital); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; font-weight:600;
+  }
+  .rx-list{ flex:1; overflow-y:auto; padding:10px 22px; }
+  .rx-row{ padding:14px 0; border-bottom:1px solid var(--line); }
+  .rx-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+  .rx-name{ font-size:14px; font-weight:600; color:var(--ink); }
+  .rx-badge{
+    font-size:10.5px; font-weight:600; color:var(--vital-dark);
+    background:#E4F5EE; padding:3px 8px; border-radius:100px;
+  }
+  .rx-badge.h{ color:var(--pulse-dark); background:#FFEAE3; }
+  .rx-dates{ font-size:12px; color:var(--muted); }
+  .s13-disclaimer{ font-size:11px; color:var(--muted); line-height:1.5; padding:14px 22px 20px; text-align:center; }
+
+  /* ---- Screen 14: Revisão de laudo ---- */
+  .s14-top{ padding:22px 22px 4px; }
+  .s14-top h2{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--ink); margin:0 0 4px; }
+  .s14-eyebrow{ font-size:12px; color:var(--muted); }
+  .s14-scroll{ flex:1; overflow-y:auto; padding:16px 22px; }
+  .summary-card{
+    background:var(--mist);
+    border-radius:16px;
+    padding:18px;
+    font-size:13.5px;
+    line-height:1.7;
+    color:var(--ink);
+    margin-bottom:14px;
+  }
+  .s14-bottom{ padding:14px 22px 22px; border-top:1px solid var(--line); }
+  .btn-flag{
+    width:100%; text-align:center;
+    background:none; border:none;
+    font-family:var(--font-body); font-weight:600; font-size:13px;
+    color:var(--pulse-dark);
+    padding:12px; margin-top:6px;
+  }
+
+  /* ---- Screen 15: Status de processamento ---- */
+  .s15{ align-items:center; justify-content:center; padding:24px; text-align:center; }
+  .ring{
+    width:88px; height:88px; border-radius:50%;
+    border:6px solid var(--mist);
+    border-top-color:var(--vital);
+    transform:rotate(-45deg);
+    margin-bottom:26px;
+  }
+  .s15 h3{ font-family:var(--font-display); font-weight:600; font-size:18px; color:var(--ink); margin:0 0 8px; }
+  .s15 p{ font-size:13px; color:var(--muted); max-width:220px; margin:0 0 26px; line-height:1.5; }
+  .steps{ display:flex; align-items:center; gap:6px; }
+  .step-dot{ width:7px; height:7px; border-radius:50%; background:var(--vital); }
+  .step-dot.pending{ background:var(--line); }
+  .step-line{ width:26px; height:1px; background:var(--line); }
+
+  /* ---- Screen 16: Sheet de opções ---- */
+  .s16{ position:relative; background:var(--ink); }
+  .s16-dim{ position:absolute; inset:0; opacity:0.4; padding:22px; }
+  .sheet{
+    position:absolute; left:0; right:0; bottom:0;
+    background:#fff;
+    border-radius:24px 24px 0 0;
+    padding:10px 20px 26px;
+  }
+  .sheet-handle{ width:36px; height:4px; background:var(--line); border-radius:100px; margin:0 auto 18px; }
+  .sheet h3{ font-family:var(--font-display); font-weight:600; font-size:17px; color:var(--ink); margin:0 0 16px; }
+  .sheet-opt{ display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px solid var(--line); }
+  .sheet-opt:last-child{ border-bottom:none; }
+  .sheet-ic{
+    width:38px; height:38px; border-radius:12px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--mist); font-size:16px; color:var(--ink);
+  }
+  .sheet-ic.warn{ background:#FFEAE3; color:var(--pulse-dark); }
+  .sheet-opt-title{ font-size:14px; font-weight:600; color:var(--ink); }
+  .sheet-opt-sub{ font-size:11.5px; color:var(--muted); margin-top:1px; }
+
+  /* ---- Screen 17: Nova prescrição ---- */
+  .s17{ padding:26px 24px 24px; justify-content:space-between; }
+  .s17 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 20px; }
+  .text-field{
+    width:100%; border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; font-family:var(--font-body); font-size:14px; color:var(--ink);
+    margin-bottom:2px;
+  }
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 0; }
+  .toggle{ width:42px; height:24px; border-radius:100px; background:var(--vital); position:relative; }
+  .toggle-knob{ width:18px; height:18px; border-radius:50%; background:#fff; position:absolute; top:3px; right:3px; }
+  .lock-note{ display:flex; gap:8px; align-items:flex-start; font-size:11.5px; color:var(--muted); line-height:1.5; margin-top:6px; }
+
+  /* ---- Screen 18: Feedback do plano ---- */
+  .s18{ padding:22px 22px 22px; justify-content:space-between; }
+  .s18 h2{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--ink); margin:0 0 6px; }
+  .s18-sub{ font-size:13px; color:var(--muted); margin-bottom:18px; }
+  .s18-textarea{
+    width:100%; height:110px; border:1px solid var(--line); border-radius:14px;
+    padding:14px; font-family:var(--font-body); font-size:14px; color:var(--ink);
+    resize:none; margin-bottom:16px;
+  }
+  .s18-note{ font-size:11.5px; color:var(--muted); text-align:center; margin-top:10px; }
+
+  /* ---- Screen 19: Exportação ---- */
+  .s19{ padding:26px 24px 24px; justify-content:space-between; }
+  .s19 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 22px; }
+  .file-card{
+    background:var(--mist); border-radius:16px; padding:20px;
+    display:flex; align-items:center; gap:14px; margin-bottom:24px;
+  }
+  .file-ic{
+    width:42px; height:42px; border-radius:10px; background:var(--vital);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:600; font-size:11px;
+  }
+  .file-name{ font-size:13.5px; font-weight:600; color:var(--ink); }
+  .file-sub{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .share-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:15px 0; border-bottom:1px solid var(--line);
+  }
+  .share-row span{ font-size:14px; font-weight:500; color:var(--ink); }
+  .s19-note{ font-size:11.5px; color:var(--muted); text-align:center; margin-top:18px; line-height:1.5; }
+
+  /* ---- Screen 20: Histórico de marcador ---- */
+  .s20-top{ padding:22px 22px 4px; }
+  .s20-top h2{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--ink); margin:0; }
+  .s20-eyebrow{ font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .chart-card{
+    margin:16px 22px; background:var(--mist); border-radius:16px; padding:18px 16px 14px;
+  }
+  .chart-range{ font-size:11px; color:var(--muted); display:flex; justify-content:space-between; margin-top:6px; }
+  .marker-hist-list{ flex:1; overflow-y:auto; padding:0 22px; }
+  .mh-row{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--line); }
+  .mh-date{ font-size:13px; color:var(--ink); font-weight:500; }
+  .mh-value{ display:flex; align-items:center; gap:8px; font-weight:600; font-size:13.5px; color:var(--ink); font-variant-numeric:tabular-nums; }
+
+  /* ---- Screen 21: Progressão de treino ---- */
+  .s21{ padding:26px 24px 24px; justify-content:space-between; }
+  .s21 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 18px; }
+  .exercise-select{
+    border:1px solid var(--line); border-radius:12px; padding:13px 14px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:14px; color:var(--ink); font-weight:500; margin-bottom:20px;
+  }
+  .exercise-select span{ color:var(--muted); font-weight:400; }
+
+  /* ---- Screen 22: Configurações ---- */
+  .s22-top{ padding:22px 22px 6px; }
+  .s22-top h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0; }
+  .settings-list{ flex:1; overflow-y:auto; padding:10px 22px 22px; }
+  .set-section-label{ font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin:18px 0 6px; }
+  .set-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--line); font-size:14px; color:var(--ink); font-weight:500; }
+  .set-row.danger{ color:var(--pulse-dark); }
+  .set-chevron{ color:var(--muted); font-size:14px; }
+  .section-title{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink);
+    margin:6px 0 10px;
+  }
+  .tl-item{ display:flex; gap:12px; padding:11px 0; }
+  .tl-dot-wrap{ display:flex; flex-direction:column; align-items:center; padding-top:4px; }
+  .tl-line{ width:1px; flex:1; background:var(--line); margin-top:4px; }
+  .tl-title{ font-size:13.5px; font-weight:500; color:var(--ink); }
+  .tl-date{ font-size:12px; color:var(--muted); margin-top:1px; }
+  .tabbar{
+    position:absolute; bottom:0; left:0; right:0;
+    height:74px;
+    background:#fff;
+    border-top:1px solid var(--line);
+    display:flex;
+    align-items:flex-start;
+    padding-top:12px;
+  }
+  .tab{ flex:1; text-align:center; font-size:11px; color:var(--muted); font-weight:500; }
+  .tab-ic{ width:20px; height:20px; margin:0 auto 4px; border-radius:6px; background:var(--line); }
+  .tab.active{ color:var(--vital); }
+  .tab.active .tab-ic{ background:var(--vital); }
+
+  /* ---- Screen 4: Treino ---- */
+  .s4-top{ padding:6px 20px 4px; }
+  .s4-top h2{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--ink); margin:0 0 14px; }
+  .day-pills{ display:flex; gap:8px; margin-bottom:6px; }
+  .pill{
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:600; font-size:14px;
+    background:var(--mist); color:var(--muted);
+  }
+  .pill.active{ background:var(--vital); color:#fff; }
+  .ex-list{ flex:1; overflow-y:auto; padding:10px 20px; }
+  .ex-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 16px;
+    background:var(--mist);
+    border-radius:14px;
+    margin-bottom:10px;
+  }
+  .ex-name{ font-size:14px; font-weight:500; color:var(--ink); }
+  .ex-sub{ font-size:12px; color:var(--muted); margin-top:3px; }
+  .ex-badge{
+    font-family:var(--font-body); font-weight:600; font-size:13px;
+    color:var(--ink); font-variant-numeric:tabular-nums;
+  }
+  .s4-bottom{
+    display:flex; gap:10px;
+    padding:14px 20px 24px;
+    border-top:1px solid var(--line);
+  }
+  .btn-secondary{
+    flex:1;
+    background:#fff;
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:100px;
+    padding:14px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+  }
+  .btn-primary.small{ flex:1; padding:14px; font-size:14px; }
+</style>
+</head>
+<body>
+
+<div class="gallery">
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s1">
+        <div>
+          <div class="wordmark">body healthy</div>
+          <div class="s1-hero">
+            <h1>Sua saúde<br>tem um plano.</h1>
+            <p>Conecta seus exames a um plano de treino e nutrição que evolui com você, ciclo a ciclo.</p>
+          </div>
+          <div class="pulse-card">
+            <svg width="220" height="60" viewBox="0 0 220 60" fill="none">
+              <path d="M0 30 L50 30 L62 8 L76 52 L90 20 L100 30 L220 30" stroke="#0EA97A" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="76" cy="52" r="4" fill="#FF5D3A"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <button class="btn-primary">Criar conta</button>
+          <div class="btn-link">Já tenho conta</div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Onboarding</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="s2-top">
+          <div class="s2-back">←</div>
+          <h2>Revisar exame</h2>
+          <p>Confira os valores antes de confirmar</p>
+        </div>
+        <div class="marker-list">
+          <div class="marker-row">
+            <div>
+              <div class="marker-name">Glicose em jejum</div>
+              <div class="marker-ref">70–99 mg/dL</div>
+            </div>
+            <div class="marker-right">
+              <span class="dot dot-mid"></span>
+              <span class="marker-value">86 mg/dL</span>
+            </div>
+          </div>
+          <div class="marker-row">
+            <div>
+              <div class="marker-name">Creatinina</div>
+              <div class="marker-ref">0,70–1,30 mg/dL</div>
+            </div>
+            <div class="marker-right">
+              <span class="dot dot-pulse"></span>
+              <span class="marker-value">1,36 mg/dL</span>
+            </div>
+          </div>
+          <div class="marker-row">
+            <div>
+              <div class="marker-name">Testosterona total</div>
+              <div class="marker-ref">240–816 ng/dL</div>
+            </div>
+            <div class="marker-right">
+              <span class="dot dot-pulse"></span>
+              <span class="marker-value">1340 ng/dL</span>
+            </div>
+          </div>
+          <div class="marker-row">
+            <div>
+              <div class="marker-name">HDL colesterol</div>
+              <div class="marker-ref">&gt; 40 mg/dL</div>
+            </div>
+            <div class="marker-right">
+              <span class="dot dot-vital"></span>
+              <span class="marker-value">72 mg/dL</span>
+            </div>
+          </div>
+          <div class="marker-row">
+            <div>
+              <div class="marker-name">Vitamina D</div>
+              <div class="marker-ref">&gt; 20 ng/mL</div>
+            </div>
+            <div class="marker-right">
+              <span class="dot dot-pulse"></span>
+              <span class="marker-value">16 ng/mL</span>
+            </div>
+          </div>
+        </div>
+        <div class="s2-bottom">
+          <button class="btn-primary">Confirmar marcadores</button>
+        </div>
+      </div>
+    </div>
+    <p class="label">Confirmação de exame</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s3">
+        <div class="s3-scroll">
+          <div class="s3-greet">Olá,</div>
+          <div class="s3-name">Fernando</div>
+
+          <div class="hero-card">
+            <div class="hero-num">3.324</div>
+            <div class="hero-label">kcal · meta de hoje</div>
+          </div>
+
+          <div class="mini-row">
+            <div class="mini-card">
+              <div class="mini-num">91 dias</div>
+              <div class="mini-label">Próximo ciclo</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-num">67%</div>
+              <div class="mini-label">Adesão ao treino</div>
+            </div>
+          </div>
+
+          <div class="section-title">Linha do tempo</div>
+          <div class="tl-item">
+            <div class="tl-dot-wrap"><span class="dot dot-vital"></span><div class="tl-line"></div></div>
+            <div><div class="tl-title">Exame confirmado — DASA</div><div class="tl-date">11 fev 2026</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot-wrap"><span class="dot dot-vital"></span><div class="tl-line"></div></div>
+            <div><div class="tl-title">Bioimpedância registrada</div><div class="tl-date">2 dez 2025</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot-wrap"><span class="dot dot-mid"></span></div>
+            <div><div class="tl-title">Prescrição — em uso contínuo</div><div class="tl-date">desde 15 jan 2026</div></div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab active"><div class="tab-ic"></div>Início</div>
+          <div class="tab"><div class="tab-ic"></div>Ciclo</div>
+          <div class="tab"><div class="tab-ic"></div>Check-in</div>
+          <div class="tab"><div class="tab-ic"></div>Perfil</div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Dashboard</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="s4-top">
+          <h2>Treino — Dia A</h2>
+          <div class="day-pills">
+            <div class="pill active">A</div>
+            <div class="pill">B</div>
+            <div class="pill">C</div>
+            <div class="pill">D</div>
+          </div>
+        </div>
+        <div class="ex-list">
+          <div class="ex-row">
+            <div><div class="ex-name">Supino reto — barra<span class="badge-new">novo</span></div><div class="ex-sub">Descanso 90s</div></div>
+            <div class="ex-badge">4 × 8–10</div>
+          </div>
+          <div class="ex-row">
+            <div><div class="ex-name">Desenvolvimento halteres</div><div class="ex-sub">Descanso 75s</div></div>
+            <div class="ex-badge">3 × 10–12</div>
+          </div>
+          <div class="ex-row">
+            <div><div class="ex-name">Crucifixo inclinado</div><div class="ex-sub">Descanso 60s</div></div>
+            <div class="ex-badge">3 × 12–15</div>
+          </div>
+          <div class="ex-row">
+            <div><div class="ex-name">Tríceps corda</div><div class="ex-sub">Descanso 60s</div></div>
+            <div class="ex-badge">4 × 10–12</div>
+          </div>
+          <div class="ex-row">
+            <div><div class="ex-name">Tríceps francês</div><div class="ex-sub">Descanso 60s</div></div>
+            <div class="ex-badge">3 × 12</div>
+          </div>
+        </div>
+        <div class="s4-bottom">
+          <button class="btn-secondary">Dar feedback</button>
+          <button class="btn-primary small">Exportar CSV</button>
+        </div>
+      </div>
+    </div>
+    <p class="label">Treino gerado</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s5">
+        <div class="s5-scroll">
+          <div class="s5-top">Hoje, 31 de agosto</div>
+          <div class="cal-card">
+            <div class="cal-num">2.180 <span style="font-size:16px; font-weight:500;">kcal</span></div>
+            <div class="cal-of">de 3.324 kcal · meta do ciclo</div>
+            <div class="cal-bar-track"><div class="cal-bar-fill"></div></div>
+            <div class="cal-remaining">1.144 kcal restantes hoje</div>
+          </div>
+
+          <button class="add-btn">+ Adicionar refeição</button>
+
+          <div class="section-title">Registrado hoje</div>
+          <div class="meal-row">
+            <div><div class="meal-name">Café da manhã</div><div class="meal-time">07:40</div></div>
+            <div class="meal-kcal">420 kcal</div>
+          </div>
+          <div class="meal-row">
+            <div><div class="meal-name">Almoço</div><div class="meal-time">12:30</div></div>
+            <div class="meal-kcal">780 kcal</div>
+          </div>
+          <div class="meal-row">
+            <div><div class="meal-name">Lanche + whey</div><div class="meal-time">16:15</div></div>
+            <div class="meal-kcal">310 kcal</div>
+          </div>
+          <div class="meal-row">
+            <div><div class="meal-name">Jantar</div><div class="meal-time">20:00</div></div>
+            <div class="meal-kcal">670 kcal</div>
+          </div>
+
+          <p class="s5-disclaimer">Estimativa informativa com base no seu ciclo atual — não é orientação nutricional individualizada.</p>
+        </div>
+      </div>
+    </div>
+    <p class="label">Registro de calorias</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s6">
+        <div>
+          <div class="s6-tag">Antes de continuar</div>
+          <h2>Seus dados de saúde, com cuidado.</h2>
+          <div class="s6-body">
+            <p>Exame, bioimpedância e prescrição são <b>dados sensíveis</b>, protegidos pela LGPD. Usamos isso só pra montar o seu plano de treino e nutrição — nada mais.</p>
+            <p>Você pode <b>revogar esse consentimento a qualquer momento</b> nas configurações, sem perder acesso à conta.</p>
+          </div>
+        </div>
+        <div>
+          <button class="btn-primary">Concordo e continuo</button>
+          <div class="btn-link">Ler o texto completo</div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Consentimento LGPD</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s7">
+        <div>
+          <h2>Qual o seu objetivo<br>para este ciclo?</h2>
+          <textarea class="s7-textarea" placeholder="Ex.: quero ganhar massa magra mantendo o percentual de gordura atual"></textarea>
+          <div class="field-label">Ou escolha uma categoria</div>
+          <div class="chip-row">
+            <div class="chip active">Massa magra</div>
+            <div class="chip">Perda de gordura</div>
+            <div class="chip">Manutenção</div>
+            <div class="chip">Outro</div>
+          </div>
+          <div class="field-label">Próximo exame previsto (opcional)</div>
+          <div class="date-field">30 de novembro de 2026</div>
+          <div class="field-label">Quantas vezes por semana pretende treinar?</div>
+          <div class="chip-row">
+            <div class="chip">3x</div>
+            <div class="chip active">4x</div>
+            <div class="chip">5x</div>
+            <div class="chip">6x</div>
+          </div>
+        </div>
+        <button class="btn-primary">Gerar meu plano</button>
+      </div>
+    </div>
+    <p class="label">Declaração de objetivo</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="s8-top">
+          <div class="s8-eyebrow">Ciclo iniciado em 31 ago</div>
+          <h2>Seu plano</h2>
+        </div>
+        <div class="s8-scroll">
+          <div class="macro-row">
+            <div class="macro-card"><div class="macro-v">3.324</div><div class="macro-l">kcal</div></div>
+            <div class="macro-card p"><div class="macro-v">180g</div><div class="macro-l">proteína</div></div>
+            <div class="macro-card"><div class="macro-v">330g</div><div class="macro-l">carbo</div></div>
+            <div class="macro-card"><div class="macro-v">92g</div><div class="macro-l">gordura</div></div>
+          </div>
+          <div class="phase-chips">
+            <div class="phase-chip"><span class="w">Sem. 1–4</span>Volume</div>
+            <div class="phase-chip"><span class="w">Sem. 5–8</span>Consolidação</div>
+            <div class="phase-chip"><span class="w">Sem. 9–12</span>Definição</div>
+          </div>
+          <p class="s8-prose">Seu treino desta fase prioriza volume nos compostos, aproveitando sua boa adesão no ciclo anterior. Mantivemos 4 sessões semanais, com foco em progressão de carga nos primeiros 30 dias.</p>
+          <p class="s8-prose">Proteína é prioridade neste ciclo — ajuda a preservar massa magra enquanto você ajusta o volume de treino. Distribua em 4-5 refeições ao longo do dia.</p>
+          <p class="s8-prose">Sua vitamina D está abaixo da faixa de referência — vale conversar com sua médica sobre isso no próximo acompanhamento.</p>
+        </div>
+      </div>
+    </div>
+    <p class="label">Plano de ação gerado</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s9">
+        <div>
+          <h2>Check-in da semana</h2>
+          <div class="s9-sub">Leva menos de 1 minuto</div>
+
+          <div class="field-group">
+            <div class="field-label">Peso hoje</div>
+            <div class="weight-input"><input type="text" value="84,2"><span>kg</span></div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Adesão ao treino</div>
+            <div class="seg">
+              <div class="seg-opt active">Completo</div>
+              <div class="seg-opt">Parcial</div>
+              <div class="seg-opt">Não fiz</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Energia</div>
+            <div class="scale-row">
+              <div class="scale-dot">1</div>
+              <div class="scale-dot">2</div>
+              <div class="scale-dot active">3</div>
+              <div class="scale-dot">4</div>
+              <div class="scale-dot">5</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Qualidade do sono</div>
+            <div class="scale-row">
+              <div class="scale-dot">1</div>
+              <div class="scale-dot">2</div>
+              <div class="scale-dot">3</div>
+              <div class="scale-dot active">4</div>
+              <div class="scale-dot">5</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary">Salvar check-in</button>
+      </div>
+    </div>
+    <p class="label">Check-in semanal</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s10">
+        <h2>Seu perfil</h2>
+        <div class="s10-sub">Ajuda a calcular sua meta calórica — você pode pular</div>
+        <div class="s10-scroll">
+          <div class="field-row">
+            <div class="field-group">
+              <div class="field-label">Altura</div>
+              <div class="weight-input"><input type="text" value="183"><span>cm</span></div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Nascimento</div>
+              <div class="date-field" style="margin-bottom:0;">13/12/1984</div>
+            </div>
+          </div>
+          <div class="field-label" style="margin-top:18px;">Sexo biológico</div>
+          <div class="seg">
+            <div class="seg-opt active">Masculino</div>
+            <div class="seg-opt">Feminino</div>
+            <div class="seg-opt">Prefiro não informar</div>
+          </div>
+          <p class="note-text">Usado só na fórmula de estimativa calórica — não é campo de identidade de gênero.</p>
+          <div class="field-label">Nível de atividade</div>
+          <div class="chip-row">
+            <div class="chip">Sedentário</div>
+            <div class="chip">Leve</div>
+            <div class="chip active">Moderado</div>
+            <div class="chip">Intenso</div>
+            <div class="chip">Muito intenso</div>
+          </div>
+        </div>
+        <div class="s10-bottom">
+          <button class="btn-primary">Continuar</button>
+          <div class="btn-link">Pular por enquanto</div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Perfil básico</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s11">
+        <div>
+          <h2>Novo exame</h2>
+          <div class="info-box">
+            <b>Por que pedimos:</b> seus marcadores ajudam a personalizar seu plano e acompanhar sua evolução ao longo do tempo. Não fazemos diagnóstico — a leitura clínica continua sendo do seu médico.
+          </div>
+          <div class="dropzone">
+            <div class="dropzone-icon">↑</div>
+            <div class="dropzone-title">Tirar foto ou escolher arquivo</div>
+            <div class="dropzone-sub">PDF ou imagem, até 20MB</div>
+          </div>
+          <div class="s11-formats">Fleury, Dasa, Hermes Pardini ou outro laboratório</div>
+        </div>
+        <button class="btn-primary">Continuar</button>
+      </div>
+    </div>
+    <p class="label">Upload de exame</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s12">
+        <div>
+          <h2>Bioimpedância</h2>
+          <div class="s12-scroll">
+            <div class="field-row" style="margin-bottom:16px;">
+              <div class="field-group">
+                <div class="field-label">Peso</div>
+                <div class="weight-input"><input type="text" value="84,2"><span>kg</span></div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">% Gordura</div>
+                <div class="weight-input"><input type="text" value="17,8"><span>%</span></div>
+              </div>
+            </div>
+            <div class="field-row" style="margin-bottom:6px;">
+              <div class="field-group">
+                <div class="field-label">Massa magra</div>
+                <div class="weight-input"><input type="text" value="69,2"><span>kg</span></div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Data da medição</div>
+                <div class="date-field" style="margin-bottom:0;">31/08/2026</div>
+              </div>
+            </div>
+            <div class="last-measure">Última medição: <b>85,6 kg</b> · há 12 dias</div>
+          </div>
+        </div>
+        <button class="btn-primary">Salvar registro</button>
+      </div>
+    </div>
+    <p class="label">Registro de bioimpedância</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="s13-top">
+          <h2>Prescrições</h2>
+          <div class="add-fab">+</div>
+        </div>
+        <div class="rx-list">
+          <div class="rx-row">
+            <div class="rx-top">
+              <span class="rx-name">Suplemento Alpha 500mg</span>
+              <span class="rx-badge">Suplemento</span>
+            </div>
+            <div class="rx-dates">Em uso contínuo desde 15 jan 2026</div>
+          </div>
+          <div class="rx-row">
+            <div class="rx-top">
+              <span class="rx-name">Colecalciferol</span>
+              <span class="rx-badge h">Medicação</span>
+            </div>
+            <div class="rx-dates">10 mar 2026 — 10 jun 2026</div>
+          </div>
+        </div>
+        <p class="s13-disclaimer">Contexto histórico apenas — nunca usamos isso pra sugerir ajuste de dose.</p>
+      </div>
+    </div>
+    <p class="label">Linha do tempo de prescrições</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="s14-top">
+          <div class="s14-eyebrow">Ecodopplercardiograma — 11 fev 2026</div>
+          <h2>Resumo do laudo</h2>
+        </div>
+        <div class="s14-scroll">
+          <div class="summary-card">
+            Seu coração foi avaliado por ultrassom e está funcionando bem, com todas as câmaras em tamanho normal e o músculo bombeando de forma eficiente (fração de ejeção de 65%, dentro do esperado).<br><br>
+            Foi identificado um pequeno refluxo na válvula mitral, classificado como discreto — um achado comum e geralmente sem repercussão clínica.
+          </div>
+          <p class="note-text">Resumo informativo em linguagem simples — não substitui a leitura do seu médico sobre o laudo original.</p>
+        </div>
+        <div class="s14-bottom">
+          <button class="btn-primary">Aceitar resumo</button>
+          <button class="btn-flag">Não reflete meu laudo</button>
+        </div>
+      </div>
+    </div>
+    <p class="label">Revisão de laudo de imagem</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s15">
+        <div class="ring"></div>
+        <h3>Analisando seu exame</h3>
+        <p>Isso pode levar alguns minutos. A gente te avisa assim que terminar.</p>
+        <div class="steps">
+          <span class="step-dot"></span><span class="step-line"></span>
+          <span class="step-dot"></span><span class="step-line"></span>
+          <span class="step-dot pending"></span>
+        </div>
+      </div>
+    </div>
+    <p class="label">Status de processamento</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar" style="color:#fff;"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s16">
+        <div class="s16-dim">
+          <div class="s14-eyebrow" style="color:#B7C4BE;">Ecodopplercardiograma — 11 fev 2026</div>
+          <h2 style="font-family:var(--font-display); color:#fff; font-size:20px; margin-top:4px;">Resumo do laudo</h2>
+        </div>
+        <div class="sheet">
+          <div class="sheet-handle"></div>
+          <h3>O que você quer fazer?</h3>
+          <div class="sheet-opt">
+            <div class="sheet-ic">↻</div>
+            <div><div class="sheet-opt-title">Tentar reprocessar</div><div class="sheet-opt-sub">Reenviamos o mesmo arquivo</div></div>
+          </div>
+          <div class="sheet-opt">
+            <div class="sheet-ic">↑</div>
+            <div><div class="sheet-opt-title">Enviar outro arquivo</div><div class="sheet-opt-sub">Substitui este laudo</div></div>
+          </div>
+          <div class="sheet-opt">
+            <div class="sheet-ic warn">×</div>
+            <div><div class="sheet-opt-title">Não subir agora</div><div class="sheet-opt-sub">Descarta este envio</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Sinalização — 3 opções</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s17">
+        <div>
+          <h2>Nova prescrição</h2>
+          <div class="field-label">Nome</div>
+          <input class="text-field" style="margin-bottom:18px;" value="Colecalciferol">
+          <div class="field-label">Categoria</div>
+          <div class="chip-row">
+            <div class="chip active">Medicação</div>
+            <div class="chip">Hormônio</div>
+            <div class="chip">Suplemento</div>
+          </div>
+          <div class="field-label">Data de início</div>
+          <div class="date-field">10 de março de 2026</div>
+          <div class="toggle-row">
+            <span style="font-size:13px; font-weight:500; color:var(--ink);">Em uso contínuo</span>
+            <div class="toggle"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="lock-note">🔒 Este dado é cifrado — só você tem acesso, e nunca é usado pra sugerir ajuste.</div>
+        </div>
+        <button class="btn-primary">Salvar</button>
+      </div>
+    </div>
+    <p class="label">Nova prescrição</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s18">
+        <div>
+          <h2>Ajustar plano</h2>
+          <div class="s18-sub">Conte o que não está funcionando</div>
+          <textarea class="s18-textarea" placeholder="Ex.: não consigo fazer agachamento, tenho dor no joelho"></textarea>
+          <div class="chip-row">
+            <div class="chip">Trocar exercício</div>
+            <div class="chip">Reduzir volume</div>
+            <div class="chip">Mudar frequência</div>
+          </div>
+        </div>
+        <div>
+          <button class="btn-primary">Enviar feedback</button>
+          <div class="s18-note">Geramos uma nova versão em alguns minutos</div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Feedback do plano</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s19">
+        <div>
+          <h2>Exportar treino</h2>
+          <div class="file-card">
+            <div class="file-ic">CSV</div>
+            <div><div class="file-name">treino-ciclo-31ago.csv</div><div class="file-sub">4 dias · 22 exercícios</div></div>
+          </div>
+          <div class="share-row"><span>Baixar arquivo</span><span>↓</span></div>
+          <div class="share-row"><span>Compartilhar</span><span>↗</span></div>
+          <p class="s19-note">Formato genérico — use no Hevy, Strong, ou qualquer app de treino de sua escolha.</p>
+        </div>
+      </div>
+    </div>
+    <p class="label">Exportação do treino</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="s20-top">
+          <div class="s20-eyebrow">Histórico completo</div>
+          <h2>Glicose em jejum</h2>
+        </div>
+        <div class="chart-card">
+          <svg width="100%" height="70" viewBox="0 0 260 70" preserveAspectRatio="none">
+            <path d="M0 40 L65 46 L130 20 L195 30 L260 10" stroke="#0EA97A" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="0" cy="40" r="3.5" fill="#0EA97A"/>
+            <circle cx="65" cy="46" r="3.5" fill="#0EA97A"/>
+            <circle cx="130" cy="20" r="3.5" fill="#0EA97A"/>
+            <circle cx="195" cy="30" r="3.5" fill="#0EA97A"/>
+            <circle cx="260" cy="10" r="3.5" fill="#FF5D3A"/>
+          </svg>
+          <div class="chart-range"><span>mai 2025</span><span>fev 2026</span></div>
+        </div>
+        <div class="marker-hist-list">
+          <div class="mh-row"><span class="mh-date">11 fev 2026</span><span class="mh-value"><span class="dot dot-pulse"></span>92 mg/dL</span></div>
+          <div class="mh-row"><span class="mh-date">27 nov 2025</span><span class="mh-value"><span class="dot dot-vital"></span>86 mg/dL</span></div>
+          <div class="mh-row"><span class="mh-date">14 set 2025</span><span class="mh-value"><span class="dot dot-mid"></span>88 mg/dL</span></div>
+          <div class="mh-row"><span class="mh-date">02 mai 2025</span><span class="mh-value"><span class="dot dot-mid"></span>91 mg/dL</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Histórico de marcador</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s21">
+        <div>
+          <h2>Registrar treino</h2>
+          <div class="exercise-select">Supino reto — barra <span>▾</span></div>
+          <div class="field-row" style="margin-bottom:16px;">
+            <div class="field-group">
+              <div class="field-label">Séries</div>
+              <div class="weight-input"><input type="text" value="4"><span></span></div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Repetições</div>
+              <div class="weight-input"><input type="text" value="9"><span></span></div>
+            </div>
+          </div>
+          <div class="field-label">Carga</div>
+          <div class="weight-input"><input type="text" value="72,5"><span>kg</span></div>
+        </div>
+        <button class="btn-primary">Salvar registro</button>
+      </div>
+    </div>
+    <p class="label">Progressão de treino</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="s22-top"><h2>Configurações</h2></div>
+        <div class="settings-list">
+          <div class="set-section-label">Conta</div>
+          <div class="set-row">Perfil <span class="set-chevron">›</span></div>
+          <div class="set-row">Consentimento de dados <span class="set-chevron">›</span></div>
+
+          <div class="set-section-label">Seus dados</div>
+          <div class="set-row">Exportar meus dados <span class="set-chevron">›</span></div>
+
+          <div class="set-section-label">Zona de risco</div>
+          <div class="set-row danger">Excluir conta <span class="set-chevron">›</span></div>
+
+          <div class="btn-link" style="margin-top:26px;">Sair da conta</div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Configurações</p>
+  </div>
+
+</div>
+
+</body>
+</html>

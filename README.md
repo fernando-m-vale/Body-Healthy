@@ -7,6 +7,7 @@ Produto de saúde metabólica personalizada que traduz exames de sangue, bioimpe
 - [Project Brief](docs/01-product/project-brief.md)
 - [PRD — Fase 1](docs/01-product/prd-fase1.md)
 - [Architecture Doc — Fase 1](docs/02-architecture/architecture-fase1.md)
+- [Sistema Visual — Fase 1](docs/04-design/sistema-visual.md)
 
 ## Metodologia
 
