@@ -27,7 +27,15 @@
       "expo-status-bar",
       "expo-secure-store",
       "expo-splash-screen",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-document-picker",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "O Body Healthy usa a câmera pra fotografar exames que você envia.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

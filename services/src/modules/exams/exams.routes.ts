@@ -44,13 +44,7 @@ export default async function examsRoutes(app: FastifyInstance) {
     { schema: { body: uploadUrlBodySchema, response: { 200: uploadUrlResponseSchema } }, preHandler },
     async (request, reply) => {
       const { fileType, contentType } = request.body;
-      const result = await createExamUploadUrl(
-        app.s3,
-        app.s3Bucket,
-        request.user.sub,
-        fileType,
-        contentType,
-      );
+      const result = await createExamUploadUrl(app.s3Bucket, request.user.sub, fileType, contentType);
       return reply.send(result);
     },
   );

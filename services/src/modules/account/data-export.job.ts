@@ -25,7 +25,7 @@ export async function runExportJob(
     const key = exportFileKey(userId, requestId);
     await putObject(s3, bucket, key, Buffer.from(JSON.stringify(data, null, 2), "utf8"), "application/json");
 
-    const downloadUrl = await createDownloadUrl(s3, bucket, key);
+    const downloadUrl = await createDownloadUrl(bucket, key);
     const readyAt = new Date();
 
     await prisma.dataExportRequest.update({

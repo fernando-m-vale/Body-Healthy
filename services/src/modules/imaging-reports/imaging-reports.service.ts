@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import type { S3Client } from "@aws-sdk/client-s3";
 import type { PrismaClient } from "../../generated/prisma/client";
 import { createUploadUrl as signUploadUrl } from "../../lib/s3";
 import type { RegisterReportBody, ReviewReportBody } from "./imaging-reports.schemas";
@@ -16,16 +15,10 @@ const CONTENT_TYPE_EXTENSION: Record<string, string> = {
 const RETRYABLE_STATUSES = ["pending_review", "failed"];
 const DISCARDABLE_STATUSES = ["pending_review", "failed"];
 
-export async function createReportUploadUrl(
-  s3: S3Client,
-  bucket: string,
-  userId: string,
-  fileType: string,
-  contentType: string,
-) {
+export async function createReportUploadUrl(bucket: string, userId: string, fileType: string, contentType: string) {
   const extension = CONTENT_TYPE_EXTENSION[contentType] ?? "bin";
   const fileKey = `imaging-reports/${userId}/${randomUUID()}.${extension}`;
-  const uploadUrl = await signUploadUrl(s3, bucket, fileKey, contentType);
+  const uploadUrl = await signUploadUrl(bucket, fileKey, contentType);
   return { uploadUrl, fileKey };
 }
 

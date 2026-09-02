@@ -39,6 +39,8 @@ Isso significa, na prática:
 - **Pulse (coral)** = energia e calorias (todo o fluxo de registro calórico é predominantemente coral), atenção/destaque (marcador fora da faixa, badge "novo" em exercício trocado, ação de sinalizar erro), e a "zona de risco" em configurações (excluir conta)
 - Nunca usar os dois como accent competindo no mesmo componente. Um decide o tom da tela; o outro aparece pontual, se aparecer
 
+**Regra adicional para valor de marcador de exame (nunca usar Vital/verde aqui):** classificar um valor numérico como "bom"/"favorável" — não apenas "dentro ou fora da faixa de referência" — é julgamento clínico, que o produto não faz (RNF02). Por isso, o indicador de cor num marcador de exame (bolinha, badge) usa apenas duas cores: `dot-pulse` (coral) quando o valor está fora da faixa de referência do próprio laudo, e `dot-mid` (cinza neutro) em qualquer outro caso — dentro da faixa, ou faixa desconhecida. Vital/verde nunca aparece como indicador de valor de marcador, em nenhuma tela.
+
 ## 4. Tipografia
 
 - **Space Grotesk** (peso 500-700) — display: títulos, números grandes (meta calórica, contagem regressiva, macros), wordmark
@@ -61,6 +63,7 @@ Isso significa, na prática:
 | Dropzone de upload | Borda tracejada `--line`, ícone circular Vital, sem preview de imagem decorativa |
 | Tab bar | 4 itens no máximo, ícone + label, item ativo em Vital |
 | Campo de data | Mesmo visual do campo de texto padrão, mas sempre abre um seletor nativo (diálogo no Android, picker inline com "Concluir" no iOS) — nunca digitação livre de data. Mostra a data já formatada no lugar do placeholder, curta (`13/12/1984`, ex.: Nascimento) ou longa (`30 de novembro de 2026`, ex.: Próximo exame previsto), conforme o mockup de cada tela. Implementado em `apps/src/components/DateField.tsx` — reaproveitar em toda tela nova com campo de data, não recriar por tela |
+| Action sheet (seleção de origem de arquivo) | Mesmo componente de Bottom sheet acima, especializado pra escolher entre poucas fontes de um arquivo (ex.: "Tirar foto" / "Escolher arquivo" na dropzone de upload de exame) — sempre 2-3 opções, nunca formulário. Implementado em `apps/src/components/ActionSheet.tsx` — reaproveitar em toda tela nova com upload de arquivo (ex.: laudo de imagem, Spec 02), não recriar por tela |
 
 ## 6. Padrões de conteúdo (copy)
 

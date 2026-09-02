@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import type { S3Client } from "@aws-sdk/client-s3";
 import type { PrismaClient } from "../../generated/prisma/client";
 import { createUploadUrl as signUploadUrl } from "../../lib/s3";
 import { calculateTrend } from "../../lib/trend";
@@ -15,16 +14,10 @@ const CONTENT_TYPE_EXTENSION: Record<string, string> = {
   "image/png": "png",
 };
 
-export async function createExamUploadUrl(
-  s3: S3Client,
-  bucket: string,
-  userId: string,
-  fileType: string,
-  contentType: string,
-) {
+export async function createExamUploadUrl(bucket: string, userId: string, fileType: string, contentType: string) {
   const extension = CONTENT_TYPE_EXTENSION[contentType] ?? "bin";
   const fileKey = `lab-exams/${userId}/${randomUUID()}.${extension}`;
-  const uploadUrl = await signUploadUrl(s3, bucket, fileKey, contentType);
+  const uploadUrl = await signUploadUrl(bucket, fileKey, contentType);
   return { uploadUrl, fileKey };
 }
 

@@ -11,16 +11,33 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const UPLOAD_URL_TTL_SECONDS = 5 * 60;
 const DOWNLOAD_URL_TTL_SECONDS = 5 * 60;
 
-export function createS3Client(): S3Client {
-  return new S3Client({
-    endpoint: process.env.S3_ENDPOINT,
+function buildS3ClientConfig(endpoint: string | undefined) {
+  return {
+    endpoint,
     region: process.env.S3_REGION ?? "us-east-1",
     forcePathStyle: true, // exigido pelo MinIO; inofensivo em S3 real
     credentials: {
       accessKeyId: process.env.S3_ACCESS_KEY_ID ?? "",
       secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
     },
-  });
+  };
+}
+
+export function createS3Client(): S3Client {
+  return new S3Client(buildS3ClientConfig(process.env.S3_ENDPOINT));
+}
+
+// Client separado, usado só pra assinar URLs (createUploadUrl/createDownloadUrl
+// abaixo) — nunca pra operação servidor↔MinIO. SigV4 assina o Host como parte
+// da requisição, então a URL só funciona pro host com que foi assinada; um
+// cliente externo (ex.: app mobile num celular físico) precisa de um endpoint
+// alcançável na rede local, que pode ser diferente do endpoint interno que o
+// backend usa pra falar com o MinIO na mesma máquina (ex.: localhost).
+// S3_PUBLIC_ENDPOINT cai para S3_ENDPOINT quando não definida, pra não quebrar
+// quem só testa localmente (curl.exe, simulador iOS via localhost).
+function createS3SigningClient(): S3Client {
+  const endpoint = process.env.S3_PUBLIC_ENDPOINT ?? process.env.S3_ENDPOINT;
+  return new S3Client(buildS3ClientConfig(endpoint));
 }
 
 export async function ensureBucketExists(s3: S3Client, bucket: string): Promise<void> {
@@ -31,14 +48,9 @@ export async function ensureBucketExists(s3: S3Client, bucket: string): Promise<
   }
 }
 
-export function createUploadUrl(
-  s3: S3Client,
-  bucket: string,
-  key: string,
-  contentType: string,
-): Promise<string> {
+export function createUploadUrl(bucket: string, key: string, contentType: string): Promise<string> {
   const command = new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType });
-  return getSignedUrl(s3, command, { expiresIn: UPLOAD_URL_TTL_SECONDS });
+  return getSignedUrl(createS3SigningClient(), command, { expiresIn: UPLOAD_URL_TTL_SECONDS });
 }
 
 // Escrita direta pelo backend (ex.: arquivo de exportação gerado pelo job,
@@ -54,9 +66,9 @@ export async function putObject(
   await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: bytes, ContentType: contentType }));
 }
 
-export function createDownloadUrl(s3: S3Client, bucket: string, key: string): Promise<string> {
+export function createDownloadUrl(bucket: string, key: string): Promise<string> {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
-  return getSignedUrl(s3, command, { expiresIn: DOWNLOAD_URL_TTL_SECONDS });
+  return getSignedUrl(createS3SigningClient(), command, { expiresIn: DOWNLOAD_URL_TTL_SECONDS });
 }
 
 export async function deleteObject(s3: S3Client, bucket: string, key: string): Promise<void> {
