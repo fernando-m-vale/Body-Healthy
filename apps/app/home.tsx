@@ -21,6 +21,7 @@ export default function HomePlaceholderScreen() {
         <Button label="Enviar exame" onPress={() => router.push("/exam-upload")} style={styles.button} />
         <Button label="Enviar laudo de imagem" onPress={() => router.push("/report-upload")} style={styles.button} />
         <Button label="Registrar bioimpedância" onPress={() => router.push("/bioimpedance")} style={styles.button} />
+        <Button label="Prescrições" onPress={() => router.push("/prescriptions")} style={styles.button} />
       </View>
     </SafeAreaView>
   );
