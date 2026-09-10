@@ -2,10 +2,15 @@ const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export class ApiError extends Error {
   status: number;
+  // Corpo de erro bruto, quando o endpoint manda campos além de `error` (ex.:
+  // activeSessionId no 409 de POST /workout-sessions, Spec 09) — a maioria
+  // dos endpoints só usa `message`, isso é opt-in pra quem precisar do resto.
+  data?: unknown;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, data?: unknown) {
     super(message);
     this.status = status;
+    this.data = data;
   }
 }
 
@@ -44,7 +49,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   if (!response.ok) {
     const message = data && typeof data === "object" && "error" in data ? String(data.error) : "Erro inesperado";
-    throw new ApiError(response.status, message);
+    throw new ApiError(response.status, message, data);
   }
 
   return data as T;

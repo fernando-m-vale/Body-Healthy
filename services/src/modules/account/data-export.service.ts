@@ -24,7 +24,7 @@ export function exportFileKey(userId: string, requestId: string): string {
 // documentado nas specs de origem. Prescrição decifrada só aqui, com log de
 // auditoria único.
 export async function aggregateExportData(prisma: PrismaClient, keyProvider: KeyProvider, userId: string, requestId: string) {
-  const [profile, labExams, imagingReports, bioimpedance, prescriptions, healthCycles, checkIns, workoutLogs, calorieLogs] =
+  const [profile, labExams, imagingReports, bioimpedance, prescriptions, healthCycles, checkIns, workoutSessions, calorieLogs] =
     await Promise.all([
       prisma.userProfile.findUnique({ where: { userId } }),
       prisma.labExam.findMany({ where: { userId, status: "confirmed" }, include: { markers: true } }),
@@ -36,7 +36,7 @@ export async function aggregateExportData(prisma: PrismaClient, keyProvider: Key
         include: { workoutPlan: { include: { exercises: true } }, feedbackEntries: true, phases: true },
       }),
       prisma.weeklyCheckIn.findMany({ where: { userId } }),
-      prisma.workoutExecutionLog.findMany({ where: { userId } }),
+      prisma.workoutSession.findMany({ where: { userId }, include: { setLogs: true } }),
       prisma.dailyCalorieLog.findMany({ where: { userId } }),
     ]);
 
@@ -76,7 +76,7 @@ export async function aggregateExportData(prisma: PrismaClient, keyProvider: Key
     prescriptions: decryptedPrescriptions,
     healthCycles,
     weeklyCheckIns: checkIns,
-    workoutExecutionLogs: workoutLogs,
+    workoutSessions,
     dailyCalorieLogs: calorieLogs,
   };
 }

@@ -25,6 +25,7 @@ export default function HomePlaceholderScreen() {
         <Button label="Novo ciclo (objetivo/plano/treino)" onPress={() => router.push("/cycle-declare")} style={styles.button} />
         <Button label="Check-in semanal" onPress={() => router.push("/cycle-checkin")} style={styles.button} />
         <Button label="Registro de calorias" onPress={() => router.push("/cycle-calories")} style={styles.button} />
+        <Button label="Sessão de treino ao vivo" onPress={() => router.push("/session-start")} style={styles.button} />
       </View>
     </SafeAreaView>
   );

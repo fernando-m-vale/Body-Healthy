@@ -13,7 +13,7 @@ import bioimpedanceRoutes from "./modules/bioimpedance/bioimpedance.routes";
 import prescriptionsRoutes from "./modules/prescriptions/prescriptions.routes";
 import cyclesRoutes from "./modules/cycles/cycles.routes";
 import checkInsRoutes from "./modules/check-ins/check-ins.routes";
-import workoutLogsRoutes from "./modules/workout-logs/workout-logs.routes";
+import workoutSessionsRoutes from "./modules/workout-sessions/workout-sessions.routes";
 import calorieLogsRoutes from "./modules/calorie-logs/calorie-logs.routes";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 import accountRoutes from "./modules/account/account.routes";
@@ -41,7 +41,7 @@ async function main() {
   await app.register(prescriptionsRoutes);
   await app.register(cyclesRoutes);
   await app.register(checkInsRoutes);
-  await app.register(workoutLogsRoutes);
+  await app.register(workoutSessionsRoutes);
   await app.register(calorieLogsRoutes);
   await app.register(dashboardRoutes);
   await app.register(accountRoutes);

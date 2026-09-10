@@ -270,19 +270,45 @@ model WeeklyCheckIn {
   @@index([userId, weekStartDate])
 }
 
-model WorkoutExecutionLog {
-  id                   String   @id @default(cuid())
-  userId               String
-  workoutExerciseId    String? // referência ao exercício gerado na Spec 05, se o log for vinculado a ele
-  exerciseNameFreeText String? // usado quando o usuário loga algo fora do treino gerado
-  performedAt          DateTime
-  setsCompleted        Int?
-  repsCompleted        String?
-  weightUsedKg         Float?
-  notes                String?
-  createdAt            DateTime @default(now())
+// Spec 09 — Sessão de Treino ao Vivo
+// docs/03-specs/09-sessao-treino-ao-vivo.md, seção 4
+// Substitui WorkoutExecutionLog (Spec 06) — remoção confirmada, sem dado de
+// produção a migrar.
 
-  @@index([userId, performedAt])
+model WorkoutSession {
+  id              String    @id @default(cuid())
+  userId          String
+  healthCycleId   String? // ciclo ativo no início da sessão, se houver
+  dayLabel        String? // copiado do WorkoutPlan ao iniciar; null = sessão livre, sem dia vinculado
+  startedAt       DateTime  @default(now())
+  finishedAt      DateTime? // null enquanto a sessão está em andamento
+  durationSeconds Int? // calculado (finishedAt - startedAt) e persistido só ao finalizar; nunca recalculado depois
+
+  setLogs WorkoutSetLog[]
+
+  @@index([userId, startedAt])
+}
+
+model WorkoutSetLog {
+  id                   String   @id @default(cuid())
+  workoutSessionId     String
+  workoutExerciseId    String? // referência ao exercício gerado (Spec 05), quando vinculado ao plano
+  exerciseNameFreeText String? // usado quando o exercício não está no plano gerado (mesmo padrão da Spec 06)
+  exerciseOrderIndex   Int // ordem do exercício dentro da sessão (mantém o agrupamento visual)
+  setNumber            Int // ordem da série dentro do exercício, dentro desta sessão
+  weightKg             Float?
+  repsCompleted        String? // texto livre, mesmo padrão já usado (ex.: "8", "8-10")
+  completed            Boolean  @default(false) // marcado quando o usuário confirma a série feita
+  notes                String? // observação por exercício (não por série)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  workoutSession WorkoutSession @relation(fields: [workoutSessionId], references: [id])
+
+  // Chave natural da série dentro da sessão — upsert (Spec 09, seção 5.3)
+  // usa exatamente essa combinação, mesmo padrão de @@unique já usado em
+  // WeeklyCheckIn/DailyCalorieLog pros seus próprios upserts.
+  @@unique([workoutSessionId, exerciseOrderIndex, setNumber])
 }
 
 model DailyCalorieLog {

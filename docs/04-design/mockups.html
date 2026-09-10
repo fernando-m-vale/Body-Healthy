@@ -356,6 +356,7 @@
 
   /* ---- Screen 11: Upload de exame ---- */
   .s11{ padding:26px 24px 24px; justify-content:space-between; }
+  .s11-back{ font-size:20px; color:var(--ink); margin-bottom:14px; }
   .s11 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 16px; }
   .info-box{
     background:var(--mist);
@@ -661,6 +662,88 @@
     font-size:14px;
   }
   .btn-primary.small{ flex:1; padding:14px; font-size:14px; }
+
+  /* ---- Screen 26: Iniciar sessão de treino (Spec 09) ---- */
+  .s26{ padding:26px 24px 24px; justify-content:space-between; }
+  .s26 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 4px; }
+  .s26-sub{ font-size:13px; color:var(--muted); margin-bottom:18px; }
+  .resume-card{
+    background:var(--ink); border-radius:16px; padding:16px 18px; color:#fff;
+    margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .resume-title{ font-family:var(--font-display); font-weight:600; font-size:15px; color:#fff; margin-bottom:2px; }
+  .resume-info{ font-size:13px; color:#B7C4BE; }
+  .resume-btn{
+    background:var(--vital); color:#fff; border:none; border-radius:100px;
+    padding:10px 16px; font-family:var(--font-body); font-weight:600; font-size:13px; flex-shrink:0;
+  }
+  .s26-scroll{ flex:1; overflow-y:auto; }
+  .day-card{
+    background:var(--mist); border-radius:16px; padding:16px 18px; margin-bottom:10px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .day-card-title{ font-size:14px; font-weight:600; color:var(--ink); }
+  .day-card-sub{ font-size:13px; color:var(--muted); margin-top:2px; }
+  .day-card-arrow{ color:var(--muted); font-size:16px; }
+
+  /* ---- Screen 27: Sessão de treino ao vivo (Spec 09) ---- */
+  .s27{ padding:0; }
+  .s27-top{ background:var(--ink); padding:20px 22px 18px; display:flex; justify-content:space-between; align-items:center; }
+  .s27-timer{ font-family:var(--font-display); font-weight:700; font-size:28px; color:#fff; letter-spacing:-0.01em; }
+  .s27-timer-label{ font-size:12.5px; color:#B7C4BE; margin-top:2px; }
+  .s27-finish-btn{
+    background:var(--vital); color:#fff; border:none; border-radius:100px;
+    padding:10px 16px; font-family:var(--font-body); font-weight:600; font-size:13px;
+  }
+  .s27-scroll{ flex:1; overflow-y:auto; padding:14px 20px 20px; }
+  .exercise-card{ margin-bottom:20px; }
+  .exercise-card-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
+  .exercise-card-name{ font-size:14px; font-weight:600; color:var(--ink); }
+  .exercise-card-rest{ font-size:12.5px; color:var(--muted); }
+  .exercise-card-note{ font-size:12.5px; color:var(--muted); line-height:1.4; margin:0 0 8px; }
+  .technique-badge{
+    display:inline-block; margin-left:8px; font-size:10.5px; font-weight:600;
+    color:var(--vital-dark); background:#E4F5EE; padding:3px 8px; border-radius:100px;
+    vertical-align:middle;
+  }
+  .set-table-head{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); padding:0 4px 6px; }
+  .set-table-head .set-num{ flex:0 0 22px; }
+  .set-table-head span:not(.set-num){ flex:1; }
+  .set-row{ display:flex; align-items:center; gap:8px; padding:6px 4px; }
+  .set-num{ flex:0 0 22px; font-family:var(--font-body); font-weight:600; font-size:13px; color:var(--muted); }
+  .set-input{
+    flex:1; border:1px solid var(--line); border-radius:10px; padding:9px 10px;
+    font-size:13px; color:var(--ink); font-family:var(--font-body); min-width:0;
+  }
+  .set-check{
+    flex:0 0 32px; width:32px; height:32px; border-radius:50%;
+    border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center;
+    color:var(--line); font-size:14px;
+  }
+  .set-check.done{ background:var(--vital); border-color:var(--vital); color:#fff; }
+  .add-set-btn{ font-size:13px; font-weight:600; color:var(--vital-dark); padding:8px 4px 4px; }
+  .add-exercise-btn{
+    width:100%; border:1.5px dashed var(--line); background:#fff; border-radius:14px;
+    padding:14px; font-family:var(--font-body); font-weight:600; font-size:14px; color:var(--muted); margin-top:6px;
+  }
+
+  /* ---- Screen 28: Descanso entre séries — barra persistente (Spec 09) ---- */
+  .s28{ padding:0; position:relative; }
+  .rest-bar-wrap{ position:absolute; left:0; right:0; bottom:0; }
+  .rest-bar{
+    margin:0 14px 14px; background:var(--ink); border-radius:18px;
+    padding:12px 14px; display:flex; align-items:center; gap:10px;
+    box-shadow:0 14px 28px -10px rgba(18,24,31,0.4);
+  }
+  .rest-bar-count{ font-family:var(--font-display); font-weight:700; font-size:19px; color:var(--pulse); flex-shrink:0; min-width:46px; }
+  .rest-bar-info{ flex:1; min-width:0; }
+  .rest-bar-label{ font-size:10.5px; color:#B7C4BE; text-transform:uppercase; letter-spacing:0.04em; font-weight:600; }
+  .rest-bar-exercise{ font-size:12.5px; color:#fff; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rest-bar-expand{ flex-shrink:0; color:#B7C4BE; font-size:14px; padding:0 2px; }
+  .rest-bar-skip{
+    flex-shrink:0; background:var(--vital); color:#fff; border:none; border-radius:100px;
+    padding:9px 14px; font-family:var(--font-body); font-weight:600; font-size:12.5px;
+  }
 </style>
 </head>
 <body>
@@ -1072,6 +1155,7 @@
       <div class="statusbar"><span>9:41</span><span>●●●</span></div>
       <div class="screen s11">
         <div>
+          <div class="s11-back">←</div>
           <h2>Novo exame</h2>
           <div class="info-box">
             <b>Por que pedimos:</b> seus marcadores ajudam a personalizar seu plano e acompanhar sua evolução ao longo do tempo. Não fazemos diagnóstico — a leitura clínica continua sendo do seu médico.
@@ -1431,6 +1515,232 @@
       </div>
     </div>
     <p class="label">Exportação pronta</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s26">
+        <div>
+          <h2>Iniciar treino</h2>
+          <div class="s26-sub">Escolha o dia do seu ciclo atual, ou treine livre</div>
+          <div class="resume-card">
+            <div>
+              <div class="resume-title">Sessão em andamento</div>
+              <div class="resume-info">Dia B · iniciada há 12 min</div>
+            </div>
+            <button class="resume-btn">Continuar</button>
+          </div>
+          <div class="s26-scroll">
+            <div class="day-card">
+              <div>
+                <div class="day-card-title">Dia A — Peito e Tríceps</div>
+                <div class="day-card-sub">7 exercícios · último treino há 3 dias</div>
+              </div>
+              <span class="day-card-arrow">›</span>
+            </div>
+            <div class="day-card">
+              <div>
+                <div class="day-card-title">Dia C — Pernas</div>
+                <div class="day-card-sub">6 exercícios · ainda não treinado</div>
+              </div>
+              <span class="day-card-arrow">›</span>
+            </div>
+          </div>
+        </div>
+        <div class="btn-link">Treino livre (sem dia específico)</div>
+      </div>
+    </div>
+    <p class="label">Iniciar sessão de treino</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="s4-top">
+          <div class="s11-back">←</div>
+          <h2>Dia A — Peito e Tríceps</h2>
+          <div class="day-card-sub" style="margin-top:0; margin-bottom:2px;">7 exercícios · último treino há 3 dias</div>
+        </div>
+        <div class="ex-list">
+          <div class="ex-row">
+            <div>
+              <div class="ex-name">Supino reto — barra<span class="technique-badge">Drop-set</span></div>
+              <div class="exercise-card-note" style="margin:3px 0 5px;">Foque na fase excêntrica — desça em 3s antes de empurrar</div>
+              <div class="ex-sub">Descanso 90s</div>
+            </div>
+            <div class="ex-badge">4 × 8–10</div>
+          </div>
+          <div class="ex-row">
+            <div><div class="ex-name">Desenvolvimento halteres</div><div class="ex-sub">Descanso 75s</div></div>
+            <div class="ex-badge">3 × 10–12</div>
+          </div>
+          <div class="ex-row">
+            <div><div class="ex-name">Crucifixo inclinado</div><div class="ex-sub">Descanso 60s</div></div>
+            <div class="ex-badge">3 × 12–15</div>
+          </div>
+          <div class="ex-row">
+            <div><div class="ex-name">Tríceps corda</div><div class="ex-sub">Descanso 60s</div></div>
+            <div class="ex-badge">4 × 10–12</div>
+          </div>
+        </div>
+        <div class="s4-bottom">
+          <button class="btn-primary">Iniciar treino</button>
+        </div>
+      </div>
+    </div>
+    <p class="label">Pré-visualização do dia (antes de iniciar)</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s27">
+        <div class="s27-top">
+          <div>
+            <div class="s27-timer">18:42</div>
+            <div class="s27-timer-label">Dia A — Peito e Tríceps</div>
+          </div>
+          <button class="s27-finish-btn">Concluir</button>
+        </div>
+        <div class="s27-scroll">
+          <div class="exercise-card">
+            <div class="exercise-card-head">
+              <div class="exercise-card-name">Supino reto — barra<span class="technique-badge">Drop-set</span></div>
+              <div class="exercise-card-rest">Descanso 90s</div>
+            </div>
+            <div class="exercise-card-note">Foque na fase excêntrica — desça em 3s antes de empurrar</div>
+            <div class="set-table-head"><span class="set-num"></span><span>Peso (kg)</span><span>Reps</span><span style="flex:0 0 32px;"></span></div>
+            <div class="set-row">
+              <div class="set-num">1</div>
+              <input class="set-input" value="72,5">
+              <input class="set-input" value="9">
+              <div class="set-check done">✓</div>
+            </div>
+            <div class="set-row">
+              <div class="set-num">2</div>
+              <input class="set-input" value="72,5">
+              <input class="set-input" value="8">
+              <div class="set-check">✓</div>
+            </div>
+            <div class="set-row">
+              <div class="set-num">3</div>
+              <input class="set-input" value="72,5">
+              <input class="set-input" value="8-10">
+              <div class="set-check">✓</div>
+            </div>
+            <div class="add-set-btn">+ Adicionar série</div>
+          </div>
+          <div class="exercise-card">
+            <div class="exercise-card-head">
+              <div class="exercise-card-name">Desenvolvimento halteres</div>
+              <div class="exercise-card-rest">Descanso 75s</div>
+            </div>
+            <div class="exercise-card-note">Cotovelos abertos a 90° — não trave no topo do movimento</div>
+            <div class="set-table-head"><span class="set-num"></span><span>Peso (kg)</span><span>Reps</span><span style="flex:0 0 32px;"></span></div>
+            <div class="set-row">
+              <div class="set-num">1</div>
+              <input class="set-input" placeholder="22">
+              <input class="set-input" placeholder="10-12">
+              <div class="set-check">✓</div>
+            </div>
+          </div>
+          <div class="add-exercise-btn">+ Adicionar exercício avulso</div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Sessão de treino ao vivo</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s28">
+        <div class="s27-top">
+          <div>
+            <div class="s27-timer">19:15</div>
+            <div class="s27-timer-label">Dia A — Peito e Tríceps</div>
+          </div>
+          <button class="s27-finish-btn">Concluir</button>
+        </div>
+        <div class="s27-scroll" style="padding-bottom:80px;">
+          <div class="exercise-card">
+            <div class="exercise-card-head">
+              <div class="exercise-card-name">Supino reto — barra<span class="technique-badge">Drop-set</span></div>
+              <div class="exercise-card-rest">Descanso 90s</div>
+            </div>
+            <div class="exercise-card-note">Foque na fase excêntrica — desça em 3s antes de empurrar</div>
+            <div class="set-table-head"><span class="set-num"></span><span>Peso (kg)</span><span>Reps</span><span style="flex:0 0 32px;"></span></div>
+            <div class="set-row">
+              <div class="set-num">1</div>
+              <input class="set-input" value="72,5">
+              <input class="set-input" value="9">
+              <div class="set-check done">✓</div>
+            </div>
+            <div class="set-row">
+              <div class="set-num">2</div>
+              <input class="set-input" value="72,5">
+              <input class="set-input" value="8">
+              <div class="set-check done">✓</div>
+            </div>
+            <div class="set-row">
+              <div class="set-num">3</div>
+              <input class="set-input" value="72,5">
+              <input class="set-input" value="8-10">
+              <div class="set-check">✓</div>
+            </div>
+            <div class="add-set-btn">+ Adicionar série</div>
+          </div>
+          <div class="exercise-card">
+            <div class="exercise-card-head">
+              <div class="exercise-card-name">Desenvolvimento halteres</div>
+              <div class="exercise-card-rest">Descanso 75s</div>
+            </div>
+            <div class="exercise-card-note">Cotovelos abertos a 90° — não trave no topo do movimento</div>
+            <div class="set-table-head"><span class="set-num"></span><span>Peso (kg)</span><span>Reps</span><span style="flex:0 0 32px;"></span></div>
+            <div class="set-row">
+              <div class="set-num">1</div>
+              <input class="set-input" placeholder="22">
+              <input class="set-input" placeholder="10-12">
+              <div class="set-check">✓</div>
+            </div>
+          </div>
+        </div>
+        <div class="rest-bar-wrap">
+          <div class="rest-bar">
+            <div class="rest-bar-count">01:12</div>
+            <div class="rest-bar-info">
+              <div class="rest-bar-label">Descanso</div>
+              <div class="rest-bar-exercise">Próxima: Supino reto — barra · série 2</div>
+            </div>
+            <div class="rest-bar-expand">⌃</div>
+            <button class="rest-bar-skip">Pular</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="label">Descanso entre séries (barra persistente)</p>
+  </div>
+
+  <div>
+    <div class="frame">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen s25">
+        <div>
+          <div class="check-badge">✓</div>
+          <h2>Sessão concluída</h2>
+          <div class="s26-sub">Dia A — Peito e Tríceps</div>
+          <div class="macro-row" style="margin-top:4px;">
+            <div class="macro-card"><div class="macro-v">54:18</div><div class="macro-l">Duração</div></div>
+            <div class="macro-card"><div class="macro-v">14</div><div class="macro-l">Séries</div></div>
+            <div class="macro-card"><div class="macro-v">1.740 kg</div><div class="macro-l">Peso total</div></div>
+          </div>
+        </div>
+        <button class="btn-primary">Voltar ao início</button>
+      </div>
+    </div>
+    <p class="label">Sessão concluída (resumo pós-treino)</p>
   </div>
 
 </div>
