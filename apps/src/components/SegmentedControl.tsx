@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontFamily: fontFamily.bodyMedium,
-    fontSize: 12.5,
+    fontSize: 13,
     color: colors.muted,
   },
   optionTextActive: {

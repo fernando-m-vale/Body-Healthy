@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { router } from "expo-router";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../src/components/Button";
 import { DateField } from "../src/components/DateField";
+import { NumberField } from "../src/components/NumberField";
 import { SegmentedControl } from "../src/components/SegmentedControl";
 import { ChipRow } from "../src/components/Chip";
 import { upsertProfile, type ActivityLevel, type BiologicalSexForCalc, type UpsertProfileBody } from "../src/api/profile";
 import { ApiError } from "../src/api/client";
 import { useAuth } from "../src/auth/auth-context";
-import { colors, radii } from "../src/theme/tokens";
+import { colors } from "../src/theme/tokens";
 import { fontFamily, typography } from "../src/theme/typography";
 
 const TODAY = new Date();
@@ -99,18 +100,7 @@ export default function ProfileScreen() {
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={styles.row}>
             <View style={styles.rowField}>
-              <Text style={typography.label}>Altura</Text>
-              <View style={styles.heightInput}>
-                <TextInput
-                  style={styles.heightValue}
-                  value={heightCm}
-                  onChangeText={setHeightCm}
-                  keyboardType="numeric"
-                  placeholder="178"
-                  placeholderTextColor={colors.muted}
-                />
-                <Text style={styles.heightUnit}>cm</Text>
-              </View>
+              <NumberField label="Altura" value={heightCm} onChangeText={setHeightCm} unit="cm" placeholder="178" />
             </View>
             <View style={styles.rowField}>
               <DateField
@@ -171,38 +161,15 @@ const styles = StyleSheet.create({
   rowField: {
     flex: 1,
   },
-  heightInput: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    gap: 6,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radii.field,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginTop: 8,
-  },
-  heightValue: {
-    fontFamily: fontFamily.displaySemiBold,
-    fontSize: 20,
-    color: colors.ink,
-    width: 70,
-    padding: 0,
-  },
-  heightUnit: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 13,
-    color: colors.muted,
-  },
   sectionLabel: {
     marginTop: 18,
     marginBottom: 8,
   },
   note: {
     fontFamily: fontFamily.bodyRegular,
-    fontSize: 11.5,
+    fontSize: 13,
     color: colors.muted,
-    lineHeight: 11.5 * 1.5,
+    lineHeight: 13 * 1.5,
     marginTop: 8,
     marginBottom: 22,
   },

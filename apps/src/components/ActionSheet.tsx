@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   optionSubtitle: {
     fontFamily: fontFamily.bodyRegular,
-    fontSize: 11.5,
+    fontSize: 13,
     color: colors.muted,
     marginTop: 1,
   },

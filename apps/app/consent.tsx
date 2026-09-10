@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontFamily: fontFamily.bodySemiBold,
-    fontSize: 11,
+    fontSize: 13,
     color: colors.pulseDark,
   },
   body: {

@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../src/components/Button";
+import { BackButton } from "../src/components/BackButton";
 import { TextField } from "../src/components/TextField";
 import { signup } from "../src/api/auth";
 import { ApiError } from "../src/api/client";
@@ -39,9 +40,7 @@ export default function SignupScreen() {
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         <View>
-          <Text style={styles.back} onPress={() => router.back()}>
-            ←
-          </Text>
+          <BackButton />
           <Text style={typography.h2}>Criar conta</Text>
 
           <View style={styles.form}>
@@ -92,11 +91,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 26,
     paddingBottom: 24,
-  },
-  back: {
-    fontSize: 20,
-    color: colors.ink,
-    marginBottom: 14,
   },
   form: {
     marginTop: 20,

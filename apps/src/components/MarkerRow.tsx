@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   ref: {
     fontFamily: fontFamily.bodyRegular,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.muted,
     marginTop: 2,
   },

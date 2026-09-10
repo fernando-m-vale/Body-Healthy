@@ -56,7 +56,7 @@ export const typography = {
   },
   label: {
     fontFamily: fontFamily.bodySemiBold,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.ink,
   },
   buttonText: {

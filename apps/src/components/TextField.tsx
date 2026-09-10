@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: spacing.xs,
     fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.pulseDark,
   },
 });
