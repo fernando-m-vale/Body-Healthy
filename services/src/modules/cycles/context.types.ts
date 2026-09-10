@@ -55,4 +55,9 @@ export interface AIContext {
   // Taxa de adesão do ciclo anterior (Spec 06, seção 6 — RF18), 0-1, ou null
   // se não houver ciclo anterior ou dado insuficiente (<2 check-ins).
   adherenceRate: number | null;
+  // Data esperada do próximo acompanhamento médico (RF19), informada pelo
+  // usuário na declaração de objetivo — usada pela periodização em fases
+  // (Spec 05, seção 5.3): presente, a IA baseia as fases no intervalo até
+  // essa data; ausente, cai numa duração padrão de referência (~12 semanas).
+  nextCycleExpectedDate: string | null;
 }

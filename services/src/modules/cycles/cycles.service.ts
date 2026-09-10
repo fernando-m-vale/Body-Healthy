@@ -97,6 +97,7 @@ export async function aggregateContext(
   objectiveCategory: string | null,
   weeklyTrainingDays: number | null,
   cycleId: string,
+  nextCycleExpectedDate: Date | null,
 ): Promise<AggregatedContext> {
   const [labExams, imagingReports, bioimpedance, prescriptions, profile, previousCycle] = await Promise.all([
     prisma.labExam.findMany({ where: { userId, status: "confirmed" }, include: { markers: true } }),
@@ -216,6 +217,7 @@ export async function aggregateContext(
     fatGramsGoal,
     weeklyTrainingDays,
     adherenceRate,
+    nextCycleExpectedDate: nextCycleExpectedDate ? nextCycleExpectedDate.toISOString() : null,
   };
 
   const redactedSnapshot: Record<string, unknown> = {
@@ -233,6 +235,7 @@ export async function aggregateContext(
     fatGramsGoal,
     weeklyTrainingDays,
     adherenceRate,
+    nextCycleExpectedDate: aiContext.nextCycleExpectedDate,
   };
 
   return {

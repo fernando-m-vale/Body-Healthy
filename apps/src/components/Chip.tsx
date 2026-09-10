@@ -2,20 +2,21 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radii } from "../theme/tokens";
 import { fontFamily } from "../theme/typography";
 
-interface Option<T extends string> {
+interface Option<T extends string | number> {
   value: T;
   label: string;
 }
 
-interface ChipRowProps<T extends string> {
+interface ChipRowProps<T extends string | number> {
   options: Option<T>[];
   value: T | null;
   onChange: (value: T) => void;
 }
 
 // Padrão .chip-row / .chip do sistema-visual.md (tela "Perfil básico" —
-// nível de atividade). Seleção única.
-export function ChipRow<T extends string>({ options, value, onChange }: ChipRowProps<T>) {
+// nível de atividade; também usado pra weeklyTrainingDays numérico na
+// Declaração de objetivo, Spec 05). Seleção única.
+export function ChipRow<T extends string | number>({ options, value, onChange }: ChipRowProps<T>) {
   return (
     <View style={styles.row}>
       {options.map((option) => {
