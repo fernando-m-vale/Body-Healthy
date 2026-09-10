@@ -1,8 +1,9 @@
 import { apiRequest } from "./client";
+import type { FileType } from "../upload/pick-document";
 
-export type FileType = "pdf" | "image";
+export type { FileType };
 export type LabSource = "fleury" | "dasa" | "hermes_pardini" | "generic";
-export type ExamStatus = "uploaded" | "processing" | "pending_confirmation" | "confirmed" | "failed";
+export type ExamStatus = "uploaded" | "processing" | "pending_confirmation" | "confirmed" | "failed" | "discarded";
 
 interface UploadUrlResponse {
   uploadUrl: string;
@@ -67,4 +68,11 @@ export interface ConfirmMarkerInput {
 // marcadores extraídos, não uma confirmação parcial.
 export function confirmExam(token: string, id: string, markers: ConfirmMarkerInput[]): Promise<ExamDetail> {
   return apiRequest<ExamDetail>(`/exams/${id}/confirm`, { method: "POST", token, body: { markers } });
+}
+
+// POST /exams/:id/discard — Spec 01 v4, seção 4 passo 7: alternativa à
+// confirmação, válido a partir de "pending_confirmation" ou "failed", nunca
+// a partir de "confirmed". Sem comentário (diferente do laudo de imagem).
+export function discardExam(token: string, id: string): Promise<ExamSummary> {
+  return apiRequest<ExamSummary>(`/exams/${id}/discard`, { method: "POST", token });
 }

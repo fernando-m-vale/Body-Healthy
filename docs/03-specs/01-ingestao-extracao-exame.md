@@ -1,5 +1,5 @@
 # Spec Técnica 01 — Ingestão e Extração de Exame Laboratorial via IA
-**Metodologia:** SDD · **Status:** Rascunho v3 · **Data:** 27/08/2026
+**Metodologia:** SDD · **Status:** Rascunho v4 · **Data:** 01/09/2026
 **Cobre:** RF01, RF04a, RF05, RF07, RNF03 (PRD Fase 1) · **Depende de:** Architecture Doc v3
 
 ---
@@ -75,7 +75,8 @@ Antes ou durante o upload, a tela deve comunicar de forma breve e não alarmista
 4. **Resultado** — job grava os `LabMarker` extraídos com `userCorrected: false`, atualiza `LabExam.status: "pending_confirmation"`, dispara notificação ao usuário (RNF04 — processamento assíncrono)
 5. **Confirmação humana (RNF03 — obrigatória)** — usuário abre a tela de revisão, vê cada marcador extraído, pode editar valor/unidade/faixa antes de confirmar. Nenhum marcador é usado em plano de ação, dashboard ou correlação enquanto `LabExam.status != "confirmed"`
 6. **Confirmação** — ao confirmar, `LabExam.status: "confirmed"`, `confirmedAt` preenchido, qualquer marcador editado marcado com `userCorrected: true`
-7. **Cálculo de tendência (RF07)** — após confirmação, sistema busca o `LabMarker` de mesmo `name` **e mesma `unit`** no `LabExam` confirmado anterior do mesmo usuário (se existir) e calcula `trend` (up/down/stable, com margem de tolerância a definir — sugestão inicial: variação <5% = stable). **Regra de segurança obrigatória:** se o marcador de mesmo nome existir no exame anterior mas com `unit` diferente (ex.: "pg/mL" vs. "ng/dL"), o sistema **não deve comparar os valores numéricos brutos** — trata como se não houvesse exame anterior comparável e retorna `trend: null`. Nunca inferir ou converter unidade automaticamente nesta spec (ver seção 8); comparar valores em unidades diferentes sem conversão pode produzir uma tendência **invertida e enganosa**, o que é pior do que não ter tendência nenhuma.
+7. **Descarte (alternativa à confirmação)** — a partir de `pending_confirmation` ou `failed`, usuário pode descartar o exame em vez de corrigir campo a campo (ex.: extração saiu muito errada, documento errado foi enviado). `LabExam.status: "discarded"`. Sem campo de comentário — diferente da Spec 02 (laudo de imagem), aqui o motivo do descarte não precisa de contexto adicional, já que o valor numérico errado é visível na própria tela. Não é a mesma coisa que simplesmente não subir um exame (RF04a já cobre isso na tela de upload, sem exigir chegar até aqui) — é abandonar uma tentativa já feita
+8. **Cálculo de tendência (RF07)** — após confirmação, sistema busca o `LabMarker` de mesmo `name` **e mesma `unit`** no `LabExam` confirmado anterior do mesmo usuário (se existir) e calcula `trend` (up/down/stable, com margem de tolerância a definir — sugestão inicial: variação <5% = stable). **Regra de segurança obrigatória:** se o marcador de mesmo nome existir no exame anterior mas com `unit` diferente (ex.: "pg/mL" vs. "ng/dL"), o sistema **não deve comparar os valores numéricos brutos** — trata como se não houvesse exame anterior comparável e retorna `trend: null`. Nunca inferir ou converter unidade automaticamente nesta spec (ver seção 8); comparar valores em unidades diferentes sem conversão pode produzir uma tendência **invertida e enganosa**, o que é pior do que não ter tendência nenhuma.
 
 ## 5. Contrato de API (alto nível)
 
@@ -85,6 +86,7 @@ Antes ou durante o upload, a tela deve comunicar de forma breve e não alarmista
 | `/exams` | POST | Registra o `LabExam` após upload concluído, enfileira extração |
 | `/exams/:id` | GET | Retorna status e, se disponível, marcadores extraídos para revisão |
 | `/exams/:id/confirm` | POST | Recebe marcadores confirmados/editados pelo usuário, persiste como confirmado |
+| `/exams/:id/discard` | POST | Descarta o exame a partir de `pending_confirmation` ou `failed` — espelha `/imaging-reports/:id/discard` da Spec 02 |
 | `/exams` | GET | Lista exames do usuário (histórico) |
 
 ## 6. Tratamento de erros e casos de borda
@@ -94,6 +96,7 @@ Antes ou durante o upload, a tela deve comunicar de forma breve e não alarmista
 - **Usuário sem exame anterior** — `trend: null`, RF07 não bloqueia o fluxo (consistente com RF04a — dado ausente não trava o produto)
 - **Mesmo marcador (nome idêntico) com unidade diferente entre exames** (ex.: DHT em "pg/mL" num exame e "ng/dL" no outro, mesmo laboratório ou não) — `trend: null`, nunca comparação numérica direta. Risco real e confirmado: dois laboratórios podem usar o mesmo nome de marcador com unidades diferentes, e a diferença de escala pode inverter a leitura de tendência se comparada sem conversão
 - **Mesmo marcador com nomes diferentes entre labs** (ex.: "Glicose" vs. "Glicose em jejum") — fora de escopo desta spec definir normalização; anotar como risco técnico para spec de comparação histórica
+- **Tentativa de descarte a partir de `confirmed`** — rejeitado; uma vez confirmado, o exame só sai do histórico via exclusão de conta (Spec 08), nunca descarte individual
 
 ## 7. Critérios de aceite
 

@@ -7,6 +7,9 @@ import type { RegisterExamBody, ConfirmExamBody } from "./exams.schemas";
 export class ExamNotFoundError extends Error {}
 export class ExamNotPendingConfirmationError extends Error {}
 export class MarkerListMismatchError extends Error {}
+export class ExamNotDiscardableError extends Error {}
+
+const DISCARDABLE_STATUSES = ["pending_confirmation", "failed"];
 
 const CONTENT_TYPE_EXTENSION: Record<string, string> = {
   "application/pdf": "pdf",
@@ -118,4 +121,25 @@ export async function confirmExam(
   ]);
 
   return getExam(prisma, userId, examId);
+}
+
+// Descarte (spec v4, seção 4 passo 7): alternativa à confirmação a partir de
+// "pending_confirmation" ou "failed" — abandonar uma tentativa já feita
+// (extração muito errada, documento errado enviado), diferente de
+// simplesmente não subir nada (RF04a já cobre isso antes de chegar aqui).
+// Nunca a partir de "confirmed" (seção 6) — uma vez confirmado, só sai via
+// exclusão de conta (Spec 08). Sem campo de comentário, diferente da Spec 02.
+export async function discardExam(prisma: PrismaClient, userId: string, examId: string) {
+  const exam = await prisma.labExam.findFirst({ where: { id: examId, userId } });
+  if (!exam) {
+    throw new ExamNotFoundError();
+  }
+  if (!DISCARDABLE_STATUSES.includes(exam.status)) {
+    throw new ExamNotDiscardableError();
+  }
+
+  return prisma.labExam.update({
+    where: { id: examId },
+    data: { status: "discarded" },
+  });
 }

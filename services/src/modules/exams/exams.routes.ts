@@ -17,9 +17,11 @@ import {
   getExam,
   listExams,
   confirmExam,
+  discardExam,
   ExamNotFoundError,
   ExamNotPendingConfirmationError,
   MarkerListMismatchError,
+  ExamNotDiscardableError,
 } from "./exams.service";
 import { runExtractionJob } from "./exams.job";
 
@@ -115,6 +117,35 @@ export default async function examsRoutes(app: FastifyInstance) {
           return reply
             .code(409)
             .send({ error: "A lista de marcadores enviada não corresponde aos marcadores extraídos do exame" });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // Descarte (spec v4, seção 4 passo 7) — alternativa à confirmação a partir
+  // de "pending_confirmation" ou "failed", espelha /imaging-reports/:id/discard.
+  server.post(
+    "/exams/:id/discard",
+    {
+      schema: {
+        params: examIdParamsSchema,
+        response: { 200: examSummarySchema, 404: errorResponseSchema, 409: errorResponseSchema },
+      },
+      preHandler,
+    },
+    async (request, reply) => {
+      try {
+        const exam = await discardExam(app.prisma, request.user.sub, request.params.id);
+        return reply.send(exam);
+      } catch (err) {
+        if (err instanceof ExamNotFoundError) {
+          return reply.code(404).send({ error: "Exame não encontrado" });
+        }
+        if (err instanceof ExamNotDiscardableError) {
+          return reply
+            .code(409)
+            .send({ error: "Exame só pode ser descartado a partir de pending_confirmation ou failed" });
         }
         throw err;
       }

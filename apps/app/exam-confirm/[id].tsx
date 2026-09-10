@@ -4,7 +4,7 @@ import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../src/components/Button";
 import { MarkerRow, type MarkerEditState } from "../../src/components/MarkerRow";
-import { confirmExam, getExam, type ExamDetail } from "../../src/api/exams";
+import { confirmExam, discardExam, getExam, type ExamDetail } from "../../src/api/exams";
 import { ApiError } from "../../src/api/client";
 import { useAuth } from "../../src/auth/auth-context";
 import { colors } from "../../src/theme/tokens";
@@ -35,6 +35,7 @@ export default function ExamConfirmScreen() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [discarding, setDiscarding] = useState(false);
 
   useEffect(() => {
     if (!token || !id) return;
@@ -87,6 +88,31 @@ export default function ExamConfirmScreen() {
     }
   }
 
+  function handleDiscardPress() {
+    Alert.alert(
+      "Não é meu exame?",
+      "Isso descarta este exame — os dados extraídos não são salvos. Você pode enviar outro arquivo depois.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Descartar", style: "destructive", onPress: handleDiscardConfirmed },
+      ],
+    );
+  }
+
+  async function handleDiscardConfirmed() {
+    if (!token || !id) return;
+    setSubmitError(null);
+    setDiscarding(true);
+    try {
+      await discardExam(token, id);
+      router.replace("/exam-upload");
+    } catch (err) {
+      setSubmitError(err instanceof ApiError ? err.message : "Não foi possível descartar. Tente novamente.");
+    } finally {
+      setDiscarding(false);
+    }
+  }
+
   if (loadError) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -127,7 +153,14 @@ export default function ExamConfirmScreen() {
 
       <View style={styles.bottom}>
         {submitError ? <Text style={styles.error}>{submitError}</Text> : null}
-        <Button label="Confirmar marcadores" onPress={handleConfirm} loading={submitting} />
+        <Button label="Confirmar marcadores" onPress={handleConfirm} loading={submitting} disabled={discarding} />
+        <Button
+          label="Não é meu exame"
+          variant="link"
+          onPress={handleDiscardPress}
+          loading={discarding}
+          disabled={submitting}
+        />
       </View>
     </SafeAreaView>
   );

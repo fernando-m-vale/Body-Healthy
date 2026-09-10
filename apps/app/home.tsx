@@ -7,9 +7,9 @@ import { typography } from "../src/theme/typography";
 
 // Placeholder temporário pós-onboarding — o Dashboard de verdade (Spec 07)
 // é escopo de uma tarefa futura própria (decisão registrada no planejamento
-// da tarefa de onboarding). Esta rota existe só pra o fluxo de onboarding
-// (e, por enquanto, o de upload de exame) ter um destino/ponto de entrada
-// pra testar, sem implementar nada do Dashboard aqui.
+// da tarefa de onboarding). Esta rota existe só pra os fluxos de upload
+// (exame, laudo de imagem) terem um destino/ponto de entrada pra testar,
+// sem implementar nada do Dashboard aqui.
 export default function HomePlaceholderScreen() {
   return (
     <SafeAreaView style={styles.safe}>
@@ -19,6 +19,7 @@ export default function HomePlaceholderScreen() {
           O dashboard (Spec 07) ainda não foi implementado nesta tarefa. Seu token foi salvo com sucesso.
         </Text>
         <Button label="Enviar exame" onPress={() => router.push("/exam-upload")} style={styles.button} />
+        <Button label="Enviar laudo de imagem" onPress={() => router.push("/report-upload")} style={styles.button} />
       </View>
     </SafeAreaView>
   );

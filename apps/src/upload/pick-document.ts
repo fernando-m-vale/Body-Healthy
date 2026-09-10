@@ -1,10 +1,11 @@
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
-import type { FileType } from "../api/exams";
+
+export type FileType = "pdf" | "image";
 
 const ALLOWED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
-export interface PickedExamFile {
+export interface PickedDocument {
   uri: string;
   name: string;
   mimeType: string;
@@ -15,9 +16,10 @@ function fileTypeFromMimeType(mimeType: string): FileType {
   return mimeType === "application/pdf" ? "pdf" : "image";
 }
 
-// Câmera — Spec 01 permite foto de exame. expo-image-picker sempre captura
-// como JPEG; mimeType às vezes vem ausente no resultado, por isso o fallback.
-export async function pickFromCamera(): Promise<PickedExamFile | null> {
+// Câmera — Specs 01/02 permitem foto de exame/laudo. expo-image-picker
+// sempre captura como JPEG; mimeType às vezes vem ausente no resultado,
+// por isso o fallback.
+export async function pickFromCamera(): Promise<PickedDocument | null> {
   const permission = await ImagePicker.requestCameraPermissionsAsync();
   if (!permission.granted) {
     throw new Error("Permissão de câmera negada. Habilite nas configurações do celular pra tirar a foto.");
@@ -32,7 +34,7 @@ export async function pickFromCamera(): Promise<PickedExamFile | null> {
   const mimeType = asset.mimeType ?? "image/jpeg";
   return {
     uri: asset.uri,
-    name: asset.fileName ?? `exame-${Date.now()}.jpg`,
+    name: asset.fileName ?? `documento-${Date.now()}.jpg`,
     mimeType,
     fileType: fileTypeFromMimeType(mimeType),
   };
@@ -40,7 +42,7 @@ export async function pickFromCamera(): Promise<PickedExamFile | null> {
 
 // Arquivo — PDF ou imagem já existente (Files no iOS, que também expõe
 // Fotos; seletor de arquivos do sistema no Android).
-export async function pickFromDocument(): Promise<PickedExamFile | null> {
+export async function pickFromDocument(): Promise<PickedDocument | null> {
   const result = await DocumentPicker.getDocumentAsync({ type: ALLOWED_DOCUMENT_TYPES, copyToCacheDirectory: true });
   if (result.canceled || !result.assets?.[0]) {
     return null;
