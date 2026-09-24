@@ -663,6 +663,21 @@
   }
   .btn-primary.small{ flex:1; padding:14px; font-size:14px; }
 
+  /* ---- Screen 30: Gráfico de progressão do dia (Spec 09, 22/09/2026 — benchmark Hevy) ---- */
+  .progress-toggle{
+    display:flex; background:var(--mist); border-radius:100px; padding:3px; margin-bottom:12px;
+  }
+  .ptoggle-opt{
+    flex:1; text-align:center; padding:7px 4px; border-radius:100px;
+    font-size:12.5px; font-weight:600; color:var(--muted);
+  }
+  .ptoggle-opt.active{ background:var(--vital); color:#fff; }
+  .progress-chart{ width:100%; height:56px; display:block; }
+  .progress-empty{
+    height:56px; display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; color:var(--muted);
+  }
+
   /* ---- Screen 26: Iniciar sessão de treino (Spec 09) ---- */
   .s26{ padding:26px 24px 24px; justify-content:space-between; }
   .s26 h2{ font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 4px; }
@@ -695,6 +710,7 @@
     background:var(--vital); color:#fff; border:none; border-radius:100px;
     padding:10px 16px; font-family:var(--font-body); font-weight:600; font-size:13px;
   }
+  .s27-discard-link{ text-align:right; margin-top:8px; font-size:13px; font-weight:500; color:#B7C4BE; }
   .s27-scroll{ flex:1; overflow-y:auto; padding:14px 20px 20px; }
   .exercise-card{ margin-bottom:20px; }
   .exercise-card-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
@@ -1561,7 +1577,18 @@
         <div class="s4-top">
           <div class="s11-back">←</div>
           <h2>Dia A — Peito e Tríceps</h2>
-          <div class="day-card-sub" style="margin-top:0; margin-bottom:2px;">7 exercícios · último treino há 3 dias</div>
+          <div class="day-card-sub" style="margin-top:0; margin-bottom:10px;">7 exercícios · último treino há 3 dias</div>
+          <div class="chart-card" style="margin:0 0 4px; padding:12px 12px 10px;">
+            <div class="progress-toggle">
+              <div class="ptoggle-opt active">Volume</div>
+              <div class="ptoggle-opt">Repetições</div>
+              <div class="ptoggle-opt">Duração</div>
+            </div>
+            <svg class="progress-chart" viewBox="0 0 280 56" preserveAspectRatio="none">
+              <polyline points="0,44 40,40 80,34 120,36 160,24 200,20 240,12 280,8" style="fill:none;stroke:var(--vital);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" />
+            </svg>
+            <div class="chart-range"><span>há 8 semanas</span><span>Hoje</span></div>
+          </div>
         </div>
         <div class="ex-list">
           <div class="ex-row">
@@ -1602,7 +1629,10 @@
             <div class="s27-timer">18:42</div>
             <div class="s27-timer-label">Dia A — Peito e Tríceps</div>
           </div>
-          <button class="s27-finish-btn">Concluir</button>
+          <div>
+            <button class="s27-finish-btn">Concluir</button>
+            <div class="s27-discard-link">Descartar</div>
+          </div>
         </div>
         <div class="s27-scroll">
           <div class="exercise-card">
@@ -1662,7 +1692,10 @@
             <div class="s27-timer">19:15</div>
             <div class="s27-timer-label">Dia A — Peito e Tríceps</div>
           </div>
-          <button class="s27-finish-btn">Concluir</button>
+          <div>
+            <button class="s27-finish-btn">Concluir</button>
+            <div class="s27-discard-link">Descartar</div>
+          </div>
         </div>
         <div class="s27-scroll" style="padding-bottom:80px;">
           <div class="exercise-card">
