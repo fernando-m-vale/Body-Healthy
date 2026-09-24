@@ -4,34 +4,53 @@ import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../src/components/Button";
 import { BackButton } from "../src/components/BackButton";
-import { startSession } from "../src/api/workout-sessions";
+import { startSession, listSessions } from "../src/api/workout-sessions";
 import { getCurrentCycle } from "../src/api/dashboard";
-import { getCycle, type WorkoutExercise } from "../src/api/cycles";
+import { getCycle } from "../src/api/cycles";
 import { ApiError } from "../src/api/client";
 import { useAuth } from "../src/auth/auth-context";
+import { buildSessionExercises, type LocalExercise } from "../src/lib/session-exercises";
 import { colors, radii } from "../src/theme/tokens";
 import { fontFamily, typography } from "../src/theme/typography";
 
 // Tela — Pré-visualização do dia antes de iniciar (mockups.html, label
-// "Pré-visualização do dia (antes de iniciar)"). Spec 09 v5/v6, seção 5.7:
+// "Pré-visualização do dia (antes de iniciar)"). Spec 09 v8, seção 5.7:
 // tocar num dia (fora sessão livre) não cria a WorkoutSession na hora —
 // mostra antes essa lista somente-leitura; só "Iniciar treino" cria a
 // sessão de fato. Reaproveita a composição de orientação da IA (selo de
 // technique + nota) já usada na sessão ao vivo (seção 5.6).
+//
+// Regra de paridade (v8): usa a MESMA função de resolução de exercícios
+// (buildSessionExercises) que a sessão ao vivo — não uma lista crua do
+// WorkoutPlan. Bug real encontrado em teste: a pré-visualização mostrava só
+// os exercícios do plano, sem o ajuste de quantidade de série pela sessão
+// de referência nem os exercícios avulsos de uma sessão anterior do mesmo
+// dia — divergindo do que a sessão ao vivo de fato carrega ao iniciar.
 export default function SessionPreviewScreen() {
   const { day } = useLocalSearchParams<{ day: string }>();
   const { token } = useAuth();
-  const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
+  const [exercises, setExercises] = useState<LocalExercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token || !day) return;
-    getCurrentCycle(token)
-      .then((cycle) => (cycle.cycleId ? getCycle(token, cycle.cycleId) : null))
-      .then((detail) => {
-        setExercises(detail?.workoutPlan?.exercises.filter((e) => e.dayLabel === day) ?? []);
+    Promise.all([
+      getCurrentCycle(token).then((cycle) => (cycle.cycleId ? getCycle(token, cycle.cycleId) : null)),
+      listSessions(token),
+    ])
+      .then(([cycleDetail, history]) => {
+        const planExercises = cycleDetail?.workoutPlan?.exercises.filter((e) => e.dayLabel === day) ?? [];
+        setExercises(
+          buildSessionExercises({
+            currentSessionId: null,
+            dayLabel: day,
+            planExercises,
+            currentSetLogs: [],
+            history,
+          }),
+        );
       })
       .catch(() => setError("Não foi possível carregar os exercícios deste dia."))
       .finally(() => setLoading(false));
@@ -80,7 +99,7 @@ export default function SessionPreviewScreen() {
       ) : (
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
           {exercises.map((exercise) => (
-            <View key={exercise.id} style={styles.exRow}>
+            <View key={exercise.key} style={styles.exRow}>
               <View style={styles.exInfo}>
                 <View style={styles.exNameRow}>
                   <Text style={styles.exName}>{exercise.exerciseName}</Text>
@@ -90,11 +109,11 @@ export default function SessionPreviewScreen() {
                     </View>
                   ) : null}
                 </View>
-                {exercise.notes ? <Text style={styles.exNote}>{exercise.notes}</Text> : null}
+                {exercise.guidanceNote ? <Text style={styles.exNote}>{exercise.guidanceNote}</Text> : null}
                 {exercise.restSeconds ? <Text style={styles.exSub}>Descanso {exercise.restSeconds}s</Text> : null}
               </View>
               <Text style={styles.exBadge}>
-                {exercise.sets} × {exercise.reps}
+                {exercise.sets.length} {exercise.planReps ? `× ${exercise.planReps}` : "séries"}
               </Text>
             </View>
           ))}

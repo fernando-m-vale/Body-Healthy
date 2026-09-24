@@ -19,6 +19,7 @@ import {
   listSessions,
   upsertSet,
   finishSession,
+  discardSession,
   SessionNotFoundError,
   SessionFinishedError,
   ActiveSessionExistsError,
@@ -129,6 +130,28 @@ export default async function workoutSessionsRoutes(app: FastifyInstance) {
       try {
         const session = await finishSession(app.prisma, request.user.sub, request.params.id);
         return reply.send(session);
+      } catch (err) {
+        if (err instanceof SessionNotFoundError) {
+          return reply.code(404).send({ error: "Sessão não encontrada" });
+        }
+        if (err instanceof SessionFinishedError) {
+          return reply.code(409).send({ error: "Sessão já finalizada" });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // Descarte de sessão em andamento (Spec 09, seção 5.9) — exclusão
+  // definitiva (decisão de implementação, a spec permite qualquer uma das
+  // duas). Só sessão em aberto; uma já finalizada não é "descartável".
+  server.delete(
+    "/workout-sessions/:id",
+    { schema: { params: sessionIdParamsSchema }, preHandler },
+    async (request, reply) => {
+      try {
+        await discardSession(app.prisma, request.user.sub, request.params.id);
+        return reply.code(204).send();
       } catch (err) {
         if (err instanceof SessionNotFoundError) {
           return reply.code(404).send({ error: "Sessão não encontrada" });

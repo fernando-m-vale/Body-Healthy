@@ -118,6 +118,25 @@ export async function upsertSet(prisma: PrismaClient, userId: string, sessionId:
   });
 }
 
+// Descarte (Spec 09, seção 5.9) — só sessão em andamento, nunca uma já
+// finalizada (essa é uma sessão histórica normal, não "descartável"). Sem
+// endpoint específico definido na spec ("fica a critério da implementação
+// decidir entre exclusão definitiva ou marcação de descartada, não muda o
+// comportamento visível") — exclusão definitiva escolhida aqui: mais simples
+// que adicionar um filtro "não descartada" em toda consulta (getActiveSession,
+// listSessions, referência de prefill) que já existe.
+export async function discardSession(prisma: PrismaClient, userId: string, sessionId: string): Promise<void> {
+  const session = await findSessionOrThrow(prisma, userId, sessionId);
+  if (session.finishedAt) {
+    throw new SessionFinishedError();
+  }
+
+  await prisma.$transaction([
+    prisma.workoutSetLog.deleteMany({ where: { workoutSessionId: sessionId } }),
+    prisma.workoutSession.delete({ where: { id: sessionId } }),
+  ]);
+}
+
 // Finalização (Spec 09, seção 5.3) — calcula durationSeconds a partir do
 // startedAt real, nunca recalculado depois. Sessão sem nenhuma série
 // concluída ainda pode ser finalizada (treino curto/interrompido não é

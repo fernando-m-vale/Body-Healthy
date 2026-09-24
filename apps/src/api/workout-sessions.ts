@@ -72,3 +72,9 @@ export function upsertSet(token: string, sessionId: string, body: UpsertSetBody)
 export function finishSession(token: string, sessionId: string): Promise<WorkoutSession> {
   return apiRequest<WorkoutSession>(`/workout-sessions/${sessionId}/finish`, { method: "PUT", token });
 }
+
+// DELETE /workout-sessions/:id — descarte de sessão em andamento (Spec 09,
+// seção 5.9): exclusão definitiva, sem passar pela tela de resumo.
+export function discardSession(token: string, sessionId: string): Promise<void> {
+  return apiRequest<void>(`/workout-sessions/${sessionId}`, { method: "DELETE", token });
+}

@@ -9,193 +9,29 @@ import {
   listSessions,
   upsertSet,
   finishSession,
+  discardSession,
   type SessionDetail,
   type SessionHistoryItem,
-  type SetLog,
 } from "../../src/api/workout-sessions";
 import { ApiError } from "../../src/api/client";
 import { useAuth } from "../../src/auth/auth-context";
 import { useRestTimer } from "../../src/lib/rest-timer";
+import { buildSessionExercises, exerciseKey, type LocalExercise, type LocalSet } from "../../src/lib/session-exercises";
 import { colors, radii } from "../../src/theme/tokens";
 import { fontFamily, typography } from "../../src/theme/typography";
 
-interface LocalSet {
-  setNumber: number;
-  weightKg: string;
-  repsCompleted: string;
-  completed: boolean;
-  saving: boolean;
-  // Último valor efetivamente salvo (via toggle de conclusão) — usado só
-  // pra saber se o campo tem edição ainda não confirmada (Spec 09 v6,
-  // seção 5.3: decisão confirmada de indicador visual, depois de teste real
-  // mostrar confusão sobre editar vs. salvar). Editar sem marcar concluída
-  // nunca dispara upsert — isso não muda, é só sinalização visual.
-  savedWeightKg: string;
-  savedRepsCompleted: string;
-}
-
-interface LocalExercise {
-  key: string;
-  orderIndex: number;
-  workoutExerciseId: string | null;
-  exerciseNameFreeText: string | null;
-  exerciseName: string;
-  technique: string | null;
-  guidanceNote: string | null;
-  restSeconds: number | null;
-  sets: LocalSet[];
-}
-
-function exerciseKey(workoutExerciseId: string | null, exerciseNameFreeText: string | null): string {
-  return workoutExerciseId ?? `free:${exerciseNameFreeText}`;
-}
-
-// Sessão mais recente (que não a atual) contendo ao menos um setLog pra este
-// exercício — a referência única pra prefill de série (Spec 09, seção 5.2:
-// "a sessão mais recente", não uma varredura por várias sessões antigas).
-function findReferenceSession(
-  history: SessionHistoryItem[],
-  currentSessionId: string,
-  workoutExerciseId: string | null,
-  exerciseNameFreeText: string | null,
-): SessionHistoryItem | undefined {
-  return history
-    .filter((s) => s.id !== currentSessionId)
-    .filter((s) =>
-      s.setLogs.some((log) =>
-        workoutExerciseId
-          ? log.workoutExerciseId === workoutExerciseId
-          : log.exerciseNameFreeText === exerciseNameFreeText,
-      ),
-    )
-    .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())[0];
-}
-
+// Monta a lista de exercícios da sessão ao vivo (retomada ou nova) a partir
+// de buildSessionExercises — a mesma função que a pré-visualização do dia
+// usa (Spec 09 v8, seção 5.7: nunca duplicar essa lógica em duas versões
+// que podem divergir).
 function buildInitialExercises(session: SessionDetail, history: SessionHistoryItem[]): LocalExercise[] {
-  const currentLogsByKey = new Map<string, SetLog[]>();
-  for (const log of session.setLogs) {
-    const key = exerciseKey(log.workoutExerciseId, log.exerciseNameFreeText);
-    const list = currentLogsByKey.get(key) ?? [];
-    list.push(log);
-    currentLogsByKey.set(key, list);
-  }
-
-  const exercises: LocalExercise[] = session.exercises.map((exercise, index) => {
-    const key = exerciseKey(exercise.id, null);
-    const currentLogs = currentLogsByKey.get(key) ?? [];
-    const referenceSession = findReferenceSession(history, session.id, exercise.id, null);
-    const referenceLogs = referenceSession?.setLogs.filter((l) => l.workoutExerciseId === exercise.id) ?? [];
-
-    const sets: LocalSet[] = Array.from({ length: exercise.sets }, (_, i) => {
-      const setNumber = i + 1;
-      const current = currentLogs.find((l) => l.setNumber === setNumber);
-      if (current) {
-        const weightKg = current.weightKg != null ? String(current.weightKg) : "";
-        const repsCompleted = current.repsCompleted ?? "";
-        return {
-          setNumber,
-          weightKg,
-          repsCompleted,
-          completed: current.completed,
-          saving: false,
-          savedWeightKg: weightKg,
-          savedRepsCompleted: repsCompleted,
-        };
-      }
-      if (referenceSession) {
-        // Já existe uma sessão anterior pra este exercício, mas ela não
-        // tem essa série específica (teve menos séries que o plano atual
-        // sugere) — fica vazia, sem cair na sugestão do plano (Spec 09,
-        // seção 5.2: "séries extras ficam vazias, sem dado anterior pra
-        // puxar" — não é o mesmo caso de "primeira vez", que tem a
-        // sugestão de reps do plano).
-        const reference = referenceLogs.find((l) => l.setNumber === setNumber);
-        if (reference) {
-          const weightKg = reference.weightKg != null ? String(reference.weightKg) : "";
-          const repsCompleted = reference.repsCompleted ?? "";
-          return {
-            setNumber,
-            weightKg,
-            repsCompleted,
-            completed: false,
-            saving: false,
-            savedWeightKg: weightKg,
-            savedRepsCompleted: repsCompleted,
-          };
-        }
-        return {
-          setNumber,
-          weightKg: "",
-          repsCompleted: "",
-          completed: false,
-          saving: false,
-          savedWeightKg: "",
-          savedRepsCompleted: "",
-        };
-      }
-      // Primeira vez pra este exercício (nenhuma sessão anterior o tocou):
-      // reps sugeridas vêm do plano, carga fica vazia (Spec 05 não propõe
-      // carga).
-      return {
-        setNumber,
-        weightKg: "",
-        repsCompleted: exercise.reps,
-        completed: false,
-        saving: false,
-        savedWeightKg: "",
-        savedRepsCompleted: exercise.reps,
-      };
-    });
-
-    return {
-      key,
-      orderIndex: index,
-      workoutExerciseId: exercise.id,
-      exerciseNameFreeText: null,
-      exerciseName: exercise.exerciseName,
-      technique: exercise.technique,
-      guidanceNote: exercise.notes,
-      restSeconds: exercise.restSeconds,
-      sets,
-    };
+  return buildSessionExercises({
+    currentSessionId: session.id,
+    dayLabel: session.dayLabel,
+    planExercises: session.exercises,
+    currentSetLogs: session.setLogs,
+    history,
   });
-
-  // Exercícios avulsos já registrados nesta sessão (retomada) que não
-  // pertencem ao plano do dia.
-  let nextOrderIndex = exercises.length;
-  const freeTextKeys = new Set(
-    session.setLogs.filter((l) => l.exerciseNameFreeText).map((l) => l.exerciseNameFreeText as string),
-  );
-  for (const name of freeTextKeys) {
-    const logs = session.setLogs
-      .filter((l) => l.exerciseNameFreeText === name)
-      .sort((a, b) => a.setNumber - b.setNumber);
-    exercises.push({
-      key: exerciseKey(null, name),
-      orderIndex: nextOrderIndex++,
-      workoutExerciseId: null,
-      exerciseNameFreeText: name,
-      exerciseName: name,
-      technique: null,
-      guidanceNote: null,
-      restSeconds: null,
-      sets: logs.map((l) => {
-        const weightKg = l.weightKg != null ? String(l.weightKg) : "";
-        const repsCompleted = l.repsCompleted ?? "";
-        return {
-          setNumber: l.setNumber,
-          weightKg,
-          repsCompleted,
-          completed: l.completed,
-          saving: false,
-          savedWeightKg: weightKg,
-          savedRepsCompleted: repsCompleted,
-        };
-      }),
-    });
-  }
-
-  return exercises;
 }
 
 function formatSessionClock(totalSeconds: number): string {
@@ -214,6 +50,7 @@ export default function LiveSessionScreen() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [finishing, setFinishing] = useState(false);
+  const [discarding, setDiscarding] = useState(false);
   const [addExerciseVisible, setAddExerciseVisible] = useState(false);
   const [newExerciseName, setNewExerciseName] = useState("");
   const restTimer = useRestTimer();
@@ -319,6 +156,7 @@ export default function LiveSessionScreen() {
         technique: null,
         guidanceNote: null,
         restSeconds: null,
+        planReps: null,
         sets: [
           {
             setNumber: 1,
@@ -381,6 +219,29 @@ export default function LiveSessionScreen() {
     }
   }
 
+  function handleDiscardPress() {
+    Alert.alert("Descartar este treino?", "As séries registradas nele serão perdidas.", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Descartar", style: "destructive", onPress: handleDiscardConfirmed },
+    ]);
+  }
+
+  // Descarte de sessão em andamento (Spec 09 v7, seção 5.9) — sem tela de
+  // resumo (não é uma sessão "concluída"), volta direto pra tela inicial.
+  async function handleDiscardConfirmed() {
+    if (!token || !session) return;
+    setDiscarding(true);
+    try {
+      await discardSession(token, session.id);
+      await restTimer.skip();
+      router.replace("/home");
+    } catch (err) {
+      Alert.alert("Erro", err instanceof ApiError ? err.message : "Não foi possível descartar a sessão.");
+    } finally {
+      setDiscarding(false);
+    }
+  }
+
   const dayTitle = useMemo(() => session?.dayLabel ?? "Treino livre", [session]);
 
   if (error) {
@@ -410,7 +271,18 @@ export default function LiveSessionScreen() {
           <Text style={styles.timer}>{formatSessionClock(elapsedSeconds)}</Text>
           <Text style={styles.timerLabel}>{dayTitle}</Text>
         </View>
-        <Button label="Concluir" onPress={handleFinish} loading={finishing} style={styles.finishBtn} />
+        <View>
+          <Button
+            label="Concluir"
+            onPress={handleFinish}
+            loading={finishing}
+            disabled={discarding}
+            style={styles.finishBtn}
+          />
+          <Pressable onPress={handleDiscardPress} disabled={finishing || discarding} hitSlop={8}>
+            <Text style={styles.discardLink}>Descartar</Text>
+          </Pressable>
+        </View>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -541,6 +413,13 @@ const styles = StyleSheet.create({
     width: "auto",
     paddingHorizontal: 16,
     paddingVertical: 10,
+  },
+  discardLink: {
+    fontFamily: fontFamily.bodyMedium,
+    fontSize: 13,
+    color: "#B7C4BE",
+    textAlign: "right",
+    marginTop: 8,
   },
   scroll: {
     flex: 1,
